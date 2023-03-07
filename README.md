@@ -30,6 +30,8 @@ An example of how to list things you need to use the software and how to install
 
 ### Installation
 
+Add example on how to install on node.
+
 <!-- USAGE EXAMPLES -->
 
 ## Usage
