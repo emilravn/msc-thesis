@@ -30,7 +30,7 @@ function handle_error {
 }
 
 # If no arguments are provided to the script
-if [ ! $# -ge 1 ]
+if [ !"$#" -ge 1 ]
 then
     echo "incorrect number of arguments: $0"
     print_help
@@ -46,8 +46,6 @@ fi
 
 action=$1
 
-# rsync -a pi@dreamdestroyer.local:/home/pi/robot_tag /c/Code/ITU/adv-robotics/exam-project
-
 case $action in
     "shutdown")
         echo "Shutting down SFR..."
@@ -55,16 +53,13 @@ case $action in
         handle_error
         ;;
     "sync")
-        if [ $# -ne 2 ] # Synchronizes everything
+        if [ "$#" -ne 2 ] # Synchronizes everything
         then
             echo "Unable to synchronize. You must choose a file or a folder to sync!"
             handle_error
-            # echo "Synchronizing... This might take a while."
-            # rsync -av -e ssh --exclude='.git*' --exclude --exclude='*pics*' --exclude='*sokoban*' `pwd`/* $USER@$IP:/home/sfr 1> /dev/null 2> /tmp/err;
-            # handle_error
         else
             echo "Synchronizing $2... This might take a while." # Synchronize one file
-            rsync -av -e ssh --exclude='.git*' $2 $USER@$IP:/home/pi 1> /dev/null 2> /tmp/err;
+            rsync -av -e ssh --exclude='.git*' $2 $USER@$IP:/home/$USER 1> /dev/null 2> /tmp/err;
             handle_error
         fi
         ;;
