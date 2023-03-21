@@ -30,7 +30,7 @@ function handle_error {
 }
 
 # If no arguments are provided to the script
-if [ !"$#" -ge 1 ]
+if [ ! $# -ge 1 ]
 then
     echo "incorrect number of arguments: $0"
     print_help
