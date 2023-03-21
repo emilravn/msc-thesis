@@ -48,7 +48,7 @@ action=$1
 
 case $action in
     "shutdown")
-        echo "Shutting down SFR..."
+        echo "Shutting down $IP..."
         ssh $USER@$IP 'sudo shutdown -h now' 1> /dev/null 2> /tmp/err;
         handle_error
         ;;
@@ -56,7 +56,6 @@ case $action in
         if [ "$#" -ne 2 ] # Synchronizes everything
         then
             echo "Unable to synchronize. You must choose a file or a folder to sync!"
-            handle_error
         else
             echo "Synchronizing $2... This might take a while." # Synchronize one file
             rsync -av -e ssh --exclude='.git*' $2 $USER@$IP:/home/$USER 1> /dev/null 2> /tmp/err;
