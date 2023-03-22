@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Set this:
+# Raspberry Pi Information:
 USER="sfr"
 IP="sfr.local"
 
@@ -17,8 +17,8 @@ function print_help
     printf '%s'
 }
 
+# If fail we print a message
 function handle_error {
-     # If fail we print a message
         if [ "$?" -ne "0" ]
         then
             echo "Could not complete sync. Are you connected to the same network of the robot?";
@@ -37,7 +37,7 @@ then
     exit 1
 fi
 
-# Check hostname and if is "raspberrypi" throw error message
+# Check hostname and if is on the rpi throw error message
 if [ `hostname` == $USER ]
 then
     echo "You are on the robot. Please run this script from your computer."
