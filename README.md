@@ -19,7 +19,7 @@ Description of the project.
 
 <!-- GETTING STARTED -->
 
-## Getting Starte
+## Getting Started
 
 **Repository is setup according to this template**: https://github.com/athackst/vscode_ros2_workspace/tree/humble
 
