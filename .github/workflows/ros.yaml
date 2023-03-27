@@ -17,7 +17,6 @@ jobs:
         name: Test
         uses: ./.github/actions/test/
 
-# https://docs.ros.org/en/rolling/The-ROS2-Project/Contributing/Code-Style-Language-Versions.html
   lint:
     name: ament_${{ matrix.linter }}
     runs-on: ubuntu-latest
