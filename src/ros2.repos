@@ -1,5 +1,10 @@
-# repositories:
-#   ros2_pi_gpio:
-#     type: git
-#     url: https://github.com/mlherd/ros2_pi_gpio
-#     version: master
+# List of repositories to use within your workspace
+# See https://github.com/dirk-thomas/vcstool
+############ 
+# Example:
+############
+repositories:
+  examples:
+    type: git
+    url: https://github.com/ros2/examples.git
+    version: humble
