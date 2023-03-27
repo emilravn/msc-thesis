@@ -1,0 +1,58 @@
+// See https://aka.ms/vscode-remote/devcontainer.json for format details.
+{
+    "name": "ROS2 Dev Container",
+	"dockerFile": "Dockerfile",
+	"build": {
+		"args": {
+			"WORKSPACE": "${containerWorkspaceFolder}"
+		}
+	},
+	"remoteUser": "ros",
+	"runArgs": [
+		"--network=host",
+		"--cap-add=SYS_PTRACE",
+		"--security-opt=seccomp:unconfined",
+		"--security-opt=apparmor:unconfined",
+		"--volume=/tmp/.X11-unix:/tmp/.X11-unix",
+		"--volume=/mnt/wslg:/mnt/wslg",
+		"--ipc=host"
+	],
+	"containerEnv": {
+		"DISPLAY": "${localEnv:DISPLAY}", // Needed for GUI try ":0" for windows
+		"WAYLAND_DISPLAY": "${localEnv:WAYLAND_DISPLAY}",
+		"XDG_RUNTIME_DIR": "${localEnv:XDG_RUNTIME_DIR}",
+		"PULSE_SERVER": "${localEnv:PULSE_SERVER}",
+		"LIBGL_ALWAYS_SOFTWARE": "1" // Needed for software rendering of opengl
+	},
+	// Set *default* container specific settings.json values on container create.
+	"customizations": {
+		"vscode": {
+			"extensions": [
+                "ms-azuretools.vscode-docker",
+                "ms-python.python",
+                "ms-python.isort",
+                "ms-python.black-formatter",
+                "ms-vscode.cpptools",
+                "ms-vscode.cpptools-themes",
+                "ms-vscode.cmake-tools",
+                "twxs.cmake",
+                "smilerobotics.urdf",
+                "yzhang.markdown-all-in-one",
+                "donjayamanne.python-extension-pack",
+                "christian-kohler.path-intellisense",
+                "ms-iot.vscode-ros"
+			],
+            "[python]": {
+                "editor.defaultFormatter": "ms-python.black-formatter",
+                "editor.formatOnSave": true,
+                "editor.codeActionsOnSave": {
+                    "source.organizeImports": true
+                },
+                "isort.args": [
+                    "--profile",
+                    "black"
+                ]
+            }
+		}
+	}
+}
