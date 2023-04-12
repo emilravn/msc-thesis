@@ -21,6 +21,8 @@ Description of the project.
 
 ## Getting Started
 
+**Repository is setup according to this template**: https://github.com/athackst/vscode_ros2_workspace/tree/humble
+
 This is an example of how you may give instructions on setting up your project locally.
 To get a local copy up and running follow these simple example steps.
 
