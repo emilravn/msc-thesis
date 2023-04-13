@@ -7,7 +7,8 @@ in3 = 6
 in4 = 5
 enA = 12
 enB = 13
-temp1=1
+
+DEFAULT_MOTOR_SPEED = 40
 
 GPIO.setmode(GPIO.BCM)
 
@@ -27,43 +28,39 @@ pA=GPIO.PWM(enA,20)
 pB=GPIO.PWM(enB,20)
 pA.start(0)
 pB.start(0)
+GPIO.output(in1,GPIO.LOW)
+GPIO.output(in2,GPIO.HIGH)
 
+GPIO.output(in3,GPIO.LOW)
+GPIO.output(in4,GPIO.HIGH)
 
 def forward():
-    GPIO.output(in1,GPIO.HIGH)
-    GPIO.output(in2,GPIO.LOW)
-
-    GPIO.output(in3,GPIO.HIGH)
-    GPIO.output(in4,GPIO.LOW)
-
-    pA.ChangeDutyCycle(60)
-    pB.ChangeDutyCycle(60)
+    pA.ChangeDutyCycle(DEFAULT_MOTOR_SPEED)
+    pB.ChangeDutyCycle(DEFAULT_MOTOR_SPEED)
 
 def backward():
-    GPIO.output(in1,GPIO.LOW)
-    GPIO.output(in2,GPIO.HIGH)
-
-    GPIO.output(in3,GPIO.LOW)
-    GPIO.output(in4,GPIO.HIGH)
-
-    pA.ChangeDutyCycle(60)
-    pB.ChangeDutyCycle(60)
+    pA.ChangeDutyCycle(DEFAULT_MOTOR_SPEED)
+    pB.ChangeDutyCycle(DEFAULT_MOTOR_SPEED)
 
 
 def turn_left():
-    pA.ChangeDutyCycle(50)
-    pB.ChangeDutyCycle(25)
+    pA.ChangeDutyCycle(DEFAULT_MOTOR_SPEED*0.8)
+    pB.ChangeDutyCycle(DEFAULT_MOTOR_SPEED*0.5)
 
 
 def turn_right():
-    pB.ChangeDutyCycle(50)
-    pA.ChangeDutyCycle(25)
+    pB.ChangeDutyCycle(DEFAULT_MOTOR_SPEED*0.8)
+    pA.ChangeDutyCycle(DEFAULT_MOTOR_SPEED*0.5)
 
 def stop():
     pA.stop()
     pB.stop()
 
 def full_stop():
+    GPIO.output(in1,GPIO.LOW)
+    GPIO.output(in2,GPIO.LOW)
+    GPIO.output(in3,GPIO.LOW)
+    GPIO.output(in4,GPIO.LOW)
     pA.stop()
     pB.stop()
     GPIO.cleanup()

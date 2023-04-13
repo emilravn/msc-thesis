@@ -15,7 +15,7 @@ class Publisher(Node): # 'MinimalPublisher' is a subclass (inherits) of 'Node'
     def __init__(self):
         super().__init__('ultrasonic_publisher')
         self.publisher_ = self.create_publisher(Range, 'reactive_robot/distance', 10) # 3rd parameter, 'qos_profile' is "queue size"
-        timer_period = 0.5  # seconds
+        timer_period = 0.1  # seconds
         if DEBUG:
             self.timer = self.create_timer(timer_period, self.test_timer_callback)
         else:

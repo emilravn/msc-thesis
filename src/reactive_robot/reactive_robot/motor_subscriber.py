@@ -22,10 +22,10 @@ class Subscriber(Node):
         self.get_logger().info('I heard: "%s"' % msg.range)
         dist_cm = msg.range*100
 
-        if dist_cm > 60:
+        if dist_cm > 55:
             # turn left
             motor.turn_left()
-        elif (dist_cm < 40):
+        elif (dist_cm < 45):
             # turn right
             motor.turn_right()
         else:
