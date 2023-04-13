@@ -28,20 +28,23 @@
 	"customizations": {
 		"vscode": {
 			"extensions": [
-				"althack.ament-task-provider",
+				"althack.ament-task-provider", // provides lint tools and error lookup
 				"betwo.b2-catkin-tools",
 				"DotJoshJohnson.xml",
 				"ms-azuretools.vscode-docker",
 				"ms-iot.vscode-ros",
 				"ms-python.python",
-				"ms-vscode.cpptools",
+				"GitHub.copilot",
+				"VisualStudioExptTeam.vscodeintellicode",
 				"redhat.vscode-yaml",
 				"smilerobotics.urdf",
 				"streetsidesoftware.code-spell-checker",
-				"twxs.cmake",
-				"yzhang.markdown-all-in-one",
-				"zachflower.uncrustify"
+				"twxs.cmake"
+				// "ms-vscode.cpptools",
+				// "yzhang.markdown-all-in-one",
+				// "zachflower.uncrustify"
 			]
 		}
-	}
+	},
+	"postStartCommand": "pip3 install -r .devcontainer/requirements.txt"
 }
