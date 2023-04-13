@@ -55,71 +55,71 @@
             "problemMatcher": []
         },
         // Linting and static code analysis tasks
-        {
-            "label": "fix",
-            "detail": "Reformat files with uncrustify.",
-            "type": "shell",
-            "command": "ament_uncrustify --reformat src/",
-            "problemMatcher": []
-        },
-        {
-            "label": "uncrustify",
-            "detail": "Lint files with uncrustify.",
-            "type": "shell",
-            "command": "ament_uncrustify src/",
-            "presentation": {
-                "panel": "dedicated",
-                "reveal": "silent",
-                "clear": true
-            },
-            "problemMatcher": [
-                {
-                    "owner": "uncrustify",
-                    "source": "uncrustify",
-                    "fileLocation": "relative",
-                    "pattern": [
-                        // just the file name message
-                        {
-                            "regexp": "^(.*)'(.*)':",
-                            "kind": "file",
-                            "file": 2,
-                            "message": 1
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "label": "cpplint",
-            "detail": "Lint files with cpplint.",
-            "type": "ament",
-            "task": "cpplint",
-            "path": "src/",
-            "problemMatcher": "$ament_cpplint",
-            "presentation": {
-                "panel": "dedicated",
-                "reveal": "silent",
-                "clear": true
-            },
-        },
-        {
-            "label": "cppcheck",
-            "detail": "Run static code checker cppcheck.",
-            "type": "ament",
-            "task": "cppcheck",
-            "path": "src/",
-            "problemMatcher": "$ament_cppcheck",
-            "presentation": {
-                "panel": "dedicated",
-                "reveal": "silent",
-                "clear": true
-            },
-            "options": {
-                "env": {
-                    "AMENT_CPPCHECK_ALLOW_SLOW_VERSIONS": "1"
-                }
-            }
-        },
+        // {
+        //     "label": "fix",
+        //     "detail": "Reformat files with uncrustify.",
+        //     "type": "shell",
+        //     "command": "ament_uncrustify --reformat src/",
+        //     "problemMatcher": []
+        // },
+        // {
+        //     "label": "uncrustify",
+        //     "detail": "Lint files with uncrustify.",
+        //     "type": "shell",
+        //     "command": "ament_uncrustify src/",
+        //     "presentation": {
+        //         "panel": "dedicated",
+        //         "reveal": "silent",
+        //         "clear": true
+        //     },
+        //     "problemMatcher": [
+        //         {
+        //             "owner": "uncrustify",
+        //             "source": "uncrustify",
+        //             "fileLocation": "relative",
+        //             "pattern": [
+        //                 // just the file name message
+        //                 {
+        //                     "regexp": "^(.*)'(.*)':",
+        //                     "kind": "file",
+        //                     "file": 2,
+        //                     "message": 1
+        //                 }
+        //             ]
+        //         }
+        //     ]
+        // },
+        // {
+        //     "label": "cpplint",
+        //     "detail": "Lint files with cpplint.",
+        //     "type": "ament",
+        //     "task": "cpplint",
+        //     "path": "src/",
+        //     "problemMatcher": "$ament_cpplint",
+        //     "presentation": {
+        //         "panel": "dedicated",
+        //         "reveal": "silent",
+        //         "clear": true
+        //     },
+        // },
+        // {
+        //     "label": "cppcheck",
+        //     "detail": "Run static code checker cppcheck.",
+        //     "type": "ament",
+        //     "task": "cppcheck",
+        //     "path": "src/",
+        //     "problemMatcher": "$ament_cppcheck",
+        //     "presentation": {
+        //         "panel": "dedicated",
+        //         "reveal": "silent",
+        //         "clear": true
+        //     },
+        //     "options": {
+        //         "env": {
+        //             "AMENT_CPPCHECK_ALLOW_SLOW_VERSIONS": "1"
+        //         }
+        //     }
+        // },
         {
             "label": "lint_cmake",
             "detail": "Run lint on cmake files.",
@@ -176,24 +176,24 @@
             "label": "lint all",
             "detail": "Run all linters.",
             "dependsOn": [
-                "cppcheck",
-                "cpplint",
+                // "cppcheck",
+                // "cpplint",
                 "flake8",
                 "lint_cmake",
                 "pep257",
                 "xmllint",
-                "uncrustify"
+                // "uncrustify"
             ],
             "problemMatcher": []
         },
         // Workspace editing tasks
-        {
-            "label": "new ament_cmake package",
-            "detail": "Create a new ROS cpp package from a template.",
-            "type": "shell",
-            "command": "ros2 pkg create --destination-directory src --build-type ament_cmake ${input:package}",
-            "problemMatcher": []
-        },
+        // {
+        //     "label": "new ament_cmake package",
+        //     "detail": "Create a new ROS cpp package from a template.",
+        //     "type": "shell",
+        //     "command": "ros2 pkg create --destination-directory src --build-type ament_cmake ${input:package}",
+        //     "problemMatcher": []
+        // },
         {
             "label": "new ament_python package",
             "detail": "Create a new ROS python package from a template.",
