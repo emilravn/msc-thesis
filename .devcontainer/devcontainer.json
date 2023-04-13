@@ -28,16 +28,16 @@
 	"customizations": {
 		"vscode": {
 			"extensions": [
+				"ms-python.python",
 				"althack.ament-task-provider", // provides lint tools and error lookup
 				"betwo.b2-catkin-tools",
 				"DotJoshJohnson.xml",
 				"ms-azuretools.vscode-docker",
-				"ms-iot.vscode-ros",
-				"ms-python.python",
 				"GitHub.copilot",
 				"VisualStudioExptTeam.vscodeintellicode",
 				"redhat.vscode-yaml",
 				"smilerobotics.urdf",
+				"ms-iot.vscode-ros",
 				"streetsidesoftware.code-spell-checker",
 				"twxs.cmake"
 				// "ms-vscode.cpptools",

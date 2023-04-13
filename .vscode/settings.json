@@ -75,4 +75,7 @@
         ".vscode-insiders",
         ".devcontainer/devcontainer.json"
     ],
+    "remote.extensionKind": {
+        "GitHub.copilot": ["ui"],
+    },
 }
