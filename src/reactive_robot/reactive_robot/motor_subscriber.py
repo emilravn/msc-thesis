@@ -6,6 +6,7 @@ from . import motor
 
 DEBUG = True
 
+
 class Subscriber(Node):
 
     def __init__(self):
@@ -19,6 +20,17 @@ class Subscriber(Node):
 
     def listener_callback(self, msg: Range):
         self.get_logger().info('I heard: "%s"' % msg.range)
+        dist_cm = msg.range*100
+
+        if dist_cm > 60:
+            # turn left
+            motor.turn_left()
+        elif (dist_cm < 40):
+            # turn right
+            motor.turn_right()
+        else:
+            # drive forward
+            motor.forward()
 
 
 def main(args=None):

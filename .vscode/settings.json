@@ -70,5 +70,7 @@
         ".vscode",
         ".vscode-insiders",
         ".devcontainer/devcontainer.json"
-    ]
+    ],
+    "python.linting.enabled": false,
+    "python.linting.flake8Enabled": true
 }

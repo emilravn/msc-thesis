@@ -10,6 +10,7 @@ enB = 13
 temp1=1
 
 GPIO.setmode(GPIO.BCM)
+
 GPIO.setup(in1,GPIO.OUT)
 GPIO.setup(in2,GPIO.OUT)
 GPIO.setup(enA,GPIO.OUT)
@@ -24,8 +25,50 @@ GPIO.output(in4,GPIO.LOW)
 
 pA=GPIO.PWM(enA,20)
 pB=GPIO.PWM(enB,20)
-pA.start(100)
-pB.start(100)
+pA.start(0)
+pB.start(0)
+
+
+def forward():
+    GPIO.output(in1,GPIO.HIGH)
+    GPIO.output(in2,GPIO.LOW)
+
+    GPIO.output(in3,GPIO.HIGH)
+    GPIO.output(in4,GPIO.LOW)
+
+    pA.ChangeDutyCycle(60)
+    pB.ChangeDutyCycle(60)
+
+def backward():
+    GPIO.output(in1,GPIO.LOW)
+    GPIO.output(in2,GPIO.HIGH)
+
+    GPIO.output(in3,GPIO.LOW)
+    GPIO.output(in4,GPIO.HIGH)
+
+    pA.ChangeDutyCycle(60)
+    pB.ChangeDutyCycle(60)
+
+
+def turn_left():
+    pA.ChangeDutyCycle(50)
+    pB.ChangeDutyCycle(25)
+
+
+def turn_right():
+    pB.ChangeDutyCycle(50)
+    pA.ChangeDutyCycle(25)
+
+def stop():
+    pA.stop()
+    pB.stop()
+
+def full_stop():
+    pA.stop()
+    pB.stop()
+    GPIO.cleanup()
+
+
 
 
 
