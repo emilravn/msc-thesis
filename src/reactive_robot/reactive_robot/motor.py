@@ -1,12 +1,16 @@
 import RPi.GPIO as GPIO          
 from time import sleep
 
+# L298N motor driver pins
+# INA and INB corresponds to the right motor, INC and IND to the left motor
 MOTOR_INA = 24
 MOTOR_INB = 23
 MOTOR_IND = 6
 MOTOR_INC = 5
 MOTOR_ENA = 12
 MOTOR_ENB = 13
+ENCODER_A = 26
+ENCODER_B = 16
 
 DEFAULT_MOTOR_SPEED = 30
 
