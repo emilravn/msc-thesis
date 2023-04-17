@@ -14,3 +14,11 @@ ENV DEBIAN_FRONTEND=dialog
 # Set up auto-source of workspace for ros user
 ARG WORKSPACE
 RUN echo "if [ -f ${WORKSPACE}/install/setup.bash ]; then source ${WORKSPACE}/install/setup.bash; fi" >> /home/ros/.bashrc
+
+## Pip dependencies
+# Upgrade pip
+RUN pip install --upgrade pip
+# Install dev dependencies
+COPY requirements.txt /tmp/requirements.txt
+RUN pip install -r /tmp/requirements.txt && \
+    rm /tmp/requirements.txt
