@@ -40,13 +40,13 @@
             }
         },
         // Clean
-        {
-            "label": "clean",
-            "detail": "Run the clean target",
-            "type": "shell",
-            "command": "colcon build --cmake-target clean",
-            "problemMatcher": "$gcc"
-        },
+        // {
+        //     "label": "clean",
+        //     "detail": "Run the clean target",
+        //     "type": "shell",
+        //     "command": "colcon build --cmake-target clean",
+        //     "problemMatcher": "$gcc"
+        // },
         {
             "label": "purge",
             "detail": "Purge workspace by deleting all generated files.",
@@ -120,19 +120,19 @@
         //         }
         //     }
         // },
-        {
-            "label": "lint_cmake",
-            "detail": "Run lint on cmake files.",
-            "type": "ament",
-            "task": "lint_cmake",
-            "path": "src/",
-            "problemMatcher": "$ament_lint_cmake",
-            "presentation": {
-                "panel": "dedicated",
-                "reveal": "silent",
-                "clear": true
-            }
-        },
+        // {
+        //     "label": "lint_cmake",
+        //     "detail": "Run lint on cmake files.",
+        //     "type": "ament",
+        //     "task": "lint_cmake",
+        //     "path": "src/",
+        //     "problemMatcher": "$ament_lint_cmake",
+        //     "presentation": {
+        //         "panel": "dedicated",
+        //         "reveal": "silent",
+        //         "clear": true
+        //     }
+        // },
         {
             "label": "flake8",
             "detail": "Run flake8 on python files.",
@@ -178,11 +178,11 @@
             "dependsOn": [
                 // "cppcheck",
                 // "cpplint",
+                // "lint_cmake",
+                // "uncrustify"
                 "flake8",
-                "lint_cmake",
                 "pep257",
                 "xmllint",
-                // "uncrustify"
             ],
             "problemMatcher": []
         },
