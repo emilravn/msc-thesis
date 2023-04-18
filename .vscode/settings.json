@@ -25,6 +25,9 @@
     "python.formatting.autopep8Args": [
         "--max-line-length=100"
     ],
+    "python.linting.flake8Args": [
+        "--max-line-length=100"
+    ],
     // "C_Cpp.default.intelliSenseMode": "linux-gcc-x86",
     // "C_Cpp.formatting": "disabled",
     // "uncrustify.configPath.linux": "/opt/ros/humble/lib/python3.10/site-packages/ament_uncrustify/configuration/ament_code_style.cfg",
@@ -78,4 +81,6 @@
     "remote.extensionKind": {
         "GitHub.copilot": ["ui"],
     },
+    "python.linting.enabled": true,
+    "python.linting.flake8Enabled": true,
 }
