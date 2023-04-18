@@ -1,19 +1,15 @@
+import math
+from gpiozero import RotaryEncoder, Robot
 import RPi.GPIO as GPIO          
 from time import sleep
-import math
-
-
-# Motor and encoder specifications
-gear_ratio = 20.4
-wheel_diameter = 48 # mm
-encoder_cpr = 48
-counts_per_rev = encoder_cpr * gear_ratio
 
 # L298N motor driver pins
 # INA and INB corresponds to the right motor, INC and IND to the left motor
+
+# RIGHT
 MOTOR_INA = 24
 MOTOR_INB = 23
-
+# LEFT
 MOTOR_IND = 6
 MOTOR_INC = 5
 
@@ -25,159 +21,63 @@ L_ENCODER_B = 16
 R_ENCODER_A = 25
 R_ENCODER_B = 22
 
-DEFAULT_MOTOR_SPEED = 50
+robot = Robot(left=(MOTOR_INC, MOTOR_IND, MOTOR_ENA), right=(MOTOR_INA, MOTOR_INB, MOTOR_ENB))
 
-GPIO.setmode(GPIO.BCM)
-GPIO.setup(MOTOR_INA,GPIO.OUT)
-GPIO.setup(MOTOR_INB,GPIO.OUT)
-GPIO.setup(MOTOR_ENA,GPIO.OUT)
-GPIO.output(MOTOR_INA,GPIO.LOW)
-GPIO.output(MOTOR_INB,GPIO.LOW)
+# Create an instance of the RotaryEncoder class
+encoder_left = RotaryEncoder(
+    L_ENCODER_A, 
+    L_ENCODER_B, 
+    max_steps=0, 
+    wrap=False)
 
-GPIO.setup(MOTOR_IND,GPIO.OUT)
-GPIO.setup(MOTOR_INC,GPIO.OUT)
-GPIO.setup(MOTOR_ENB,GPIO.OUT)
-GPIO.output(MOTOR_INC,GPIO.LOW)
-GPIO.output(MOTOR_IND,GPIO.LOW)
+encoder_right = RotaryEncoder(
+    R_ENCODER_A, 
+    R_ENCODER_B, 
+    max_steps=0, 
+    wrap=False)
 
-GPIO.setup(L_ENCODER_A, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-GPIO.setup(L_ENCODER_B, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-GPIO.setup(R_ENCODER_A, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-GPIO.setup(R_ENCODER_B, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+DEFAULT_MOTOR_SPEED = 30
 
-def event_setup():
-    # Enable interrupt detection on encoder input pins
-    GPIO.add_event_detect(L_ENCODER_A, GPIO.BOTH, callback=encoder_callback_left, bouncetime=500)
-    GPIO.add_event_detect(L_ENCODER_B, GPIO.BOTH, callback=encoder_callback_left, bouncetime=500)
-    GPIO.add_event_detect(R_ENCODER_A, GPIO.BOTH, callback=encoder_callback_right, bouncetime=500)
-    GPIO.add_event_detect(R_ENCODER_B, GPIO.BOTH, callback=encoder_callback_right, bouncetime=500) # TODO: research bouncetime
+# Define the distance to travel (in cm)
+distance_to_travel = 50
+distance_covered_left = 0
+distance_covered_right = 0
+distance_travelled = 0
 
-pA=GPIO.PWM(MOTOR_ENA,20)
-pB=GPIO.PWM(MOTOR_ENB,20)
-pA.start(100)
-pB.start(100)
+# Encoder/motor specs
+gear_ratio = 20.4
+wheel_diameter = 48
+encoder_cpr = 48
+counts_per_rev = encoder_cpr * gear_ratio
 
-# Set initial encoder counts
-left_count = 0
-right_count = 0
-left_distance = 0
-right_distance = 0
-
-
-# Define interrupt handlers for encoder signals
-def encoder_callback_left(channel):
-    global left_count, left_distance
-    sleep(0.1)
-    GPIO.remove_event_detect(L_ENCODER_A)
-    GPIO.remove_event_detect(L_ENCODER_B)
-
-    if GPIO.input(L_ENCODER_A) == GPIO.input(L_ENCODER_B):
-        left_count += 1
-        print("Incremented left_count") # TODO: remove
-    else:
-        left_count -= 1
-        print("decremented left_count") # TODO: remove
-    left_distance = distance_traveled(left_count)
-
-    print("hello big boy")
-    sleep(0.1)
-    GPIO.add_event_detect(L_ENCODER_A, GPIO.BOTH, callback=encoder_callback_left, bouncetime=500)
-    GPIO.add_event_detect(L_ENCODER_B, GPIO.BOTH, callback=encoder_callback_left, bouncetime=500)
-
-
-def encoder_callback_right(channel):
-    global right_count, right_distance
-    sleep(0.1)
-    GPIO.remove_event_detect(R_ENCODER_A)
-    GPIO.remove_event_detect(R_ENCODER_B)
-
-    if GPIO.input(R_ENCODER_A) == GPIO.input(R_ENCODER_B):
-        right_count += 1
-        print("Incremented right_count") # TODO: remove
-    else:
-        right_count -= 1
-        print("decremented right_count") # TODO: remove
-    right_distance = distance_traveled(right_count)
-
-    print("hello big girl")
-    sleep(0.1)
-    event_setup()
-
-
-def forward():
-    GPIO.output(MOTOR_INA,GPIO.LOW)
-    GPIO.output(MOTOR_INB,GPIO.HIGH)
-
-    GPIO.output(MOTOR_IND,GPIO.LOW)
-    GPIO.output(MOTOR_INC,GPIO.HIGH)
-    pA.ChangeDutyCycle(DEFAULT_MOTOR_SPEED)
-    pB.ChangeDutyCycle(DEFAULT_MOTOR_SPEED)
-
-def backward():
-    GPIO.output(MOTOR_INA,GPIO.HIGH)
-    GPIO.output(MOTOR_INB,GPIO.LOW)
-
-    GPIO.output(MOTOR_IND,GPIO.HIGH)
-    GPIO.output(MOTOR_INC,GPIO.LOW)
-    pA.ChangeDutyCycle(DEFAULT_MOTOR_SPEED)
-    pB.ChangeDutyCycle(DEFAULT_MOTOR_SPEED)
-
-def turn_left():
-    pA.ChangeDutyCycle(DEFAULT_MOTOR_SPEED)
-    pB.ChangeDutyCycle(DEFAULT_MOTOR_SPEED-10)
-
-def turn_right():
-    pA.ChangeDutyCycle(DEFAULT_MOTOR_SPEED-10)
-    pB.ChangeDutyCycle(DEFAULT_MOTOR_SPEED)
-
-def stop():
-    pA.stop()
-    pB.stop()
-
-def full_stop():
-    GPIO.output(MOTOR_INA,GPIO.LOW)
-    GPIO.output(MOTOR_INB,GPIO.LOW)
-    GPIO.output(MOTOR_IND,GPIO.LOW)
-    GPIO.output(MOTOR_INC,GPIO.LOW)
-    pA.stop()
-    pB.stop()
-    GPIO.cleanup()
-
-
-def distance_traveled(counts):
-    '''Returns distance in millimeter.'''
-    # Convert encoder counts to motor shaft revolutions
+def distance_travelled(counts):
     revs = counts / counts_per_rev
-    
-    # Calculate distance traveled by wheel
     distance = revs * math.pi * wheel_diameter
-    
     return distance
 
+# Define a callback function to be called each time the encoder position changes
+def on_rotate_left():
+    global distance_covered_left
+    distance_covered_left = distance_travelled(encoder_left.steps)
 
-def main(): 
-    global left_count, left_distance, right_count, right_distance
-
-    while True:
-        left_dist_cm = left_distance*0.1
-        right_dist_cm = right_distance*0.1
-        total_distance_cm = (left_dist_cm+right_dist_cm)/2
-        event_setup() 
-        forward()
-        # print(f"Left motor count = {left_count}, distance = {left_dist_cm}")
-        # print(f"Right motor count = {right_count}, distance = {right_dist_cm}")
-        # print(f"Total distance covered = {total_distance_cm}")
-
-        if total_distance_cm == 50:
-            full_stop()
-            print(f"Full stop, total distance = {total_distance_cm}")
-            break
+def on_rotate_right():
+    global distance_covered_right
+    distance_covered_right = distance_travelled(encoder_right.steps)
 
 if __name__ == "__main__":
     try:
-        main()
- 
+        while True:
+            # Attach the callback function to the RotaryEncoder instance
+            encoder_left.when_rotated = on_rotate_left()
+            encoder_right.when_rotated = on_rotate_right()
+            robot.forward()
+            total_distance_covered = (distance_covered_left + distance_covered_right) / 2
+            print(f"total_distance_covered: {abs(total_distance_covered)}")
+
+            if abs(total_distance_covered) >= distance_to_travel:
+                robot.stop()
+
     except KeyboardInterrupt:
-        print("Measurement stopped by User")
+        print("Stopped")
     finally:
         GPIO.cleanup()
