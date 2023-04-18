@@ -19,6 +19,6 @@ RUN echo "if [ -f ${WORKSPACE}/install/setup.bash ]; then source ${WORKSPACE}/in
 # Upgrade pip
 RUN pip install --upgrade pip
 # Install dev dependencies
-COPY requirements.txt /tmp/requirements.txt
+COPY dev-requirements.txt /tmp/dev-requirements.txt
 RUN pip install -r /tmp/requirements.txt && \
     rm /tmp/requirements.txt
