@@ -58,6 +58,10 @@ def distance_travelled(counts):
     distance = revs * math.pi * wheel_diameter
     return distance
 
+# Define a callback function to be called each time the encoder position changes
+def on_rotate_left():
+    global distance_covered_left
+    distance_covered_left = distance_travelled(encoder_left.steps)
 
 def on_rotate_left():
     global distance_covered_left
