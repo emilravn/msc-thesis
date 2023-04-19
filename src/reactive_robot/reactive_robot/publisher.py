@@ -4,7 +4,6 @@ from sensor_msgs.msg import Range
 
 from .ultrasonic import Sonar
 
-DEBUG = False
 
 GPIO_TRIGGER = 17
 GPIO_ECHO = 27
@@ -18,10 +17,7 @@ class Publisher(Node):  # 'MinimalPublisher' is a subclass (inherits) of 'Node'
         # 3rd parameter, 'qos_profile' is "queue size"
         self.publisher_ = self.create_publisher(Range, 'reactive_robot/distance', 10)
         timer_period = 0.1  # seconds
-        if DEBUG:
-            self.timer = self.create_timer(timer_period, self.test_timer_callback)
-        else:
-            self.timer = self.create_timer(timer_period, self.timer_callback)
+        self.timer = self.create_timer(timer_period, self.timer_callback)
 
     def timer_callback(self):
         us_distance = us_sensor.get_distance()*0.01
@@ -59,6 +55,4 @@ if __name__ == '__main__':
         print("motor_subscriber stopped by User")
         us_sensor.cleanup()
     finally:
-        if DEBUG:
-            print("FINALLY")
         us_sensor.cleanup()
