@@ -79,7 +79,7 @@
         ".devcontainer/devcontainer.json"
     ],
     "remote.extensionKind": {
-        "GitHub.copilot": ["ui"],
+        "GitHub.copilot": ["ui"], // Run Copilot outside of the container (enable/disable)
     },
     "python.linting.enabled": true,
     "python.linting.flake8Enabled": true,

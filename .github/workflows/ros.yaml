@@ -5,6 +5,7 @@ on:
     paths:
       - "src/**"
   pull_request:
+    branches: [main]
     paths:
       - "src/**"
   workflow_dispatch:
@@ -12,18 +13,18 @@ on:
 jobs:
   test:
     name: test
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
-      - 
-        name: Checkout code
+      
+      - name: Checkout code
         uses: actions/checkout@v3
-      -
-        name: Test
+
+      - name: Test
         uses: ./.github/actions/test/
 
   lint:
     name: ament_${{ matrix.linter }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     strategy:
       fail-fast: false
       matrix:
