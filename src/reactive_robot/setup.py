@@ -20,7 +20,7 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'ultrasonic_publisher = reactive_robot.publisher:main',
+            'publisher = reactive_robot.publisher:main',
             'motor_subscriber = reactive_robot.motor_subscriber:main',
         ],
     },
