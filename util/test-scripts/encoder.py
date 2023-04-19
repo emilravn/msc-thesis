@@ -24,10 +24,10 @@ robot = Robot(left=(MOTOR_INC, MOTOR_IND, MOTOR_ENA),
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(MOTOR_ENA, GPIO.OUT)
 GPIO.setup(MOTOR_ENB, GPIO.OUT)
-pwm_right = GPIO.PWM(MOTOR_ENA, 20)
 pwm_left = GPIO.PWM(MOTOR_ENB, 20)
-pwm_right.start(DEFAULT_MOTOR_SPEED)
-pwm_left.start(DEFAULT_MOTOR_SPEED)
+pwm_right = GPIO.PWM(MOTOR_ENA, 20)
+pwm_left.start(100)
+pwm_right.start(100)
 
 encoder_left = RotaryEncoder(
     L_ENCODER_A,
@@ -42,18 +42,19 @@ encoder_right = RotaryEncoder(
     wrap=False)
 
 # Define the distance to travel (in cm)
-distance_to_travel = 25
+distance_to_travel = 40
 distance_covered_left = 0
 distance_covered_right = 0
 
 # Encoder/motor specs
 gear_ratio = 20.4
-belt_diameter = 105  # millimeter
+belt_diameter = 88  # millimeter
 encoder_cpr = 48
 counts_per_rev = encoder_cpr * gear_ratio
 
 
 def distance_travelled(counts):
+    """Returns distance in centimeters."""
     revs = counts / counts_per_rev
     distance = revs * math.pi * belt_diameter
     return distance
@@ -73,6 +74,8 @@ def on_rotate_right():
 
 if __name__ == "__main__":
     try:
+        pwm_left.ChangeDutyCycle(DEFAULT_MOTOR_SPEED)
+        pwm_right.ChangeDutyCycle(DEFAULT_MOTOR_SPEED)
         while True:
             encoder_left.when_rotated = on_rotate_left()
             encoder_right.when_rotated = on_rotate_right()
