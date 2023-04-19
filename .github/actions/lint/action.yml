@@ -1,6 +1,6 @@
 name: 'Lint'
-description: 'Lint using devcontainer'
+description: 'Lint using minimal production container'
 runs:
   using: 'docker'
-  image: '../../../.devcontainer/Dockerfile'
+  image: '../../../Dockerfile'
   entrypoint: ".github/actions/lint/run.sh"
