@@ -8,11 +8,13 @@ GPIO_TRIGGER = 17
 GPIO_ECHO = 27
 us_sensor = Sonar(GPIO_TRIGGER, GPIO_ECHO)
 
-class Publisher(Node): # 'MinimalPublisher' is a subclass (inherits) of 'Node'
+
+class Publisher(Node):  # 'MinimalPublisher' is a subclass (inherits) of 'Node'
 
     def __init__(self):
         super().__init__('ultrasonic_publisher')
-        self.publisher_ = self.create_publisher(Range, 'distance', 10) # 3rd parameter, 'qos_profile' is "queue size"
+        # 3rd parameter, 'qos_profile' is "queue size"
+        self.publisher_ = self.create_publisher(Range, 'distance', 10)
         timer_period = 0.5  # seconds
         self.timer = self.create_timer(timer_period, self.timer_callback)
 
@@ -26,21 +28,21 @@ class Publisher(Node): # 'MinimalPublisher' is a subclass (inherits) of 'Node'
         msg.min_range = 0.0
         msg.max_range = 10.0
         msg.range = us_distance
-        self.get_logger().info('Publishing: "%f"' % msg.range) # get_logger().info publishes msg to console
+        self.get_logger().info('Publishing: "%f"' % msg.range)
         self.publisher_.publish(msg)
-        
+
 
 def main(args=None):
     rclpy.init(args=args)
-    
-    publisher = Publisher() # this is a node
+
+    publisher = Publisher()  # this is a node
 
     rclpy.spin(publisher)
 
     # Destroy the node explicitly
     # (optional - otherwise it will be done automatically
     # when the garbage collector destroys the node object)
-    print("\n\nCLEANING UP\n\n") # TODO: remove
+    print("\n\nCLEANING UP\n\n")  # TODO: remove
     us_sensor.cleanup()
     publisher.destroy_node()
     rclpy.shutdown()
