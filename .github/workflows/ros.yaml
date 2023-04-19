@@ -1,11 +1,9 @@
 name: ROS
 
 on:
-  pull_request:
-    branches: [main]
+  push:
     paths:
       - "src/**"
-  push:
   workflow_dispatch:
     
 jobs:
