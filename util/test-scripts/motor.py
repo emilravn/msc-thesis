@@ -1,108 +1,39 @@
-import RPi.GPIO as GPIO          
-from time import sleep
+from gpiozero import Robot
+import RPi.GPIO as GPIO
+# from time import sleep
 
-in1 = 24
-in2 = 23
-in3 = 6
-in4 = 5
-enA = 12
-enB = 13
-temp1=1
+# L298N motor driver pins
+# RIGHT
+MOTOR_INA = 24
+MOTOR_INB = 23
+MOTOR_ENA = 12
+# LEFT
+MOTOR_IND = 6
+MOTOR_INC = 5
+MOTOR_ENB = 13
 
+DEFAULT_MOTOR_SPEED = 60
+
+
+robot = Robot(left=(MOTOR_INC, MOTOR_IND, MOTOR_ENB),
+              right=(MOTOR_INA, MOTOR_INB, MOTOR_ENA), pwm=False)
 GPIO.setmode(GPIO.BCM)
-GPIO.setup(in1,GPIO.OUT)
-GPIO.setup(in2,GPIO.OUT)
-GPIO.setup(enA,GPIO.OUT)
-GPIO.output(in1,GPIO.LOW)
-GPIO.output(in2,GPIO.LOW)
-
-GPIO.setup(in3,GPIO.OUT)
-GPIO.setup(in4,GPIO.OUT)
-GPIO.setup(enB,GPIO.OUT)
-GPIO.output(in3,GPIO.LOW)
-GPIO.output(in4,GPIO.LOW)
-
-pA=GPIO.PWM(enA,20)
-pB=GPIO.PWM(enB,20)
-pA.start(100)
-pB.start(100)
+GPIO.setup(MOTOR_ENA, GPIO.OUT)
+GPIO.setup(MOTOR_ENB, GPIO.OUT)
+pwm_left = GPIO.PWM(MOTOR_ENB, 20)
+pwm_right = GPIO.PWM(MOTOR_ENA, 20)
+pwm_left.start(100)
+pwm_right.start(100)
 
 
-
-print("\n")
-print("The default speed & direction of motor is LOW & Forward.....")
-print("r-run s-stop f-forward b-backward l-low m-medium h-high e-exit")
-print("\n")    
-
-while(1):
-
-    x=input()
-    
-    if x=='r':
-        print("run")
-        if(temp1==1):
-         GPIO.output(in1,GPIO.HIGH)
-         GPIO.output(in2,GPIO.LOW)
-         GPIO.output(in3,GPIO.HIGH)
-         GPIO.output(in4,GPIO.LOW) 
-         print("forward")
-         x='z'
-        else:
-         GPIO.output(in1,GPIO.LOW)
-         GPIO.output(in2,GPIO.HIGH)
-         GPIO.output(in3,GPIO.LOW)
-         GPIO.output(in4,GPIO.HIGH)
-         print("backward")
-         x='z'
+def cleanup_pins():
+    GPIO.cleanup()
 
 
-    elif x=='s':
-        print("stop")
-        GPIO.output(in1,GPIO.LOW)
-        GPIO.output(in2,GPIO.LOW)
-        GPIO.output(in3,GPIO.LOW)
-        GPIO.output(in4,GPIO.LOW)
-        x='z'
-
-    elif x=='f':
-        print("forward")
-        GPIO.output(in1,GPIO.HIGH)
-        GPIO.output(in2,GPIO.LOW)
-        GPIO.output(in3,GPIO.HIGH)
-        GPIO.output(in4,GPIO.LOW)
-        temp1=1
-        x='z'
-
-    elif x=='b':
-        print("backward")
-        GPIO.output(in1,GPIO.LOW)
-        GPIO.output(in2,GPIO.HIGH)
-        temp1=0
-        x='z'
-
-    elif x=='l':
-        print("low")
-        pA.ChangeDutyCycle(25)
-        pB.ChangeDutyCycle(25)
-        x='z'
-
-    elif x=='m':
-        print("medium")
-        pA.ChangeDutyCycle(50)
-        pB.ChangeDutyCycle(50)
-        x='z'
-
-    elif x=='h':
-        print("high")
-        pA.ChangeDutyCycle(75)
-        pB.ChangeDutyCycle(75)
-        x='z'
-     
-    
-    elif x=='e':
+if __name__ == "__main__":
+    try:
+        print("Missing implementation")
+    except KeyboardInterrupt:
+        print("Stopped")
+    finally:
         GPIO.cleanup()
-        break
-    
-    else:
-        print("<<<  wrong data  >>>")
-        print("please enter the defined data to continue.....")

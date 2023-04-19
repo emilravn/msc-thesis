@@ -1,34 +1,14 @@
 import math
-from gpiozero import RotaryEncoder, Robot
+from gpiozero import RotaryEncoder
 import RPi.GPIO as GPIO
+import motor
 # from time import sleep
 
-# L298N motor driver pins
-# RIGHT
-MOTOR_INA = 24
-MOTOR_INB = 23
-MOTOR_ENA = 12
+
 R_ENCODER_A = 25
 R_ENCODER_B = 22
-# LEFT
-MOTOR_IND = 6
-MOTOR_INC = 5
-MOTOR_ENB = 13
 L_ENCODER_A = 26
 L_ENCODER_B = 16
-
-DEFAULT_MOTOR_SPEED = 60
-
-
-robot = Robot(left=(MOTOR_INC, MOTOR_IND, MOTOR_ENB),
-              right=(MOTOR_INA, MOTOR_INB, MOTOR_ENA), pwm=False)
-GPIO.setmode(GPIO.BCM)
-GPIO.setup(MOTOR_ENA, GPIO.OUT)
-GPIO.setup(MOTOR_ENB, GPIO.OUT)
-pwm_left = GPIO.PWM(MOTOR_ENB, 20)
-pwm_right = GPIO.PWM(MOTOR_ENA, 20)
-pwm_left.start(100)
-pwm_right.start(100)
 
 encoder_left = RotaryEncoder(
     L_ENCODER_A,
@@ -60,8 +40,6 @@ def distance_travelled(counts):
     distance = revs * math.pi * belt_diameter
     return distance
 
-# Define a callback function to be called each time the encoder position changes
-
 
 def on_rotate_left():
     global distance_covered_left
@@ -73,19 +51,23 @@ def on_rotate_right():
     distance_covered_right = distance_travelled(encoder_right.steps)
 
 
+def cleanup_pins():
+    GPIO.cleanup()
+
+
 if __name__ == "__main__":
     try:
-        pwm_left.ChangeDutyCycle(DEFAULT_MOTOR_SPEED)
-        pwm_right.ChangeDutyCycle(DEFAULT_MOTOR_SPEED)
+        motor.pwm_left.ChangeDutyCycle(motor.DEFAULT_MOTOR_SPEED)
+        motor.pwm_right.ChangeDutyCycle(motor.DEFAULT_MOTOR_SPEED)
         while True:
             encoder_left.when_rotated = on_rotate_left()
             encoder_right.when_rotated = on_rotate_right()
-            robot.forward()
+            motor.robot.forward()
             total_distance_covered = (distance_covered_left + distance_covered_right) / 2
             print(f"total_distance_covered: {abs(total_distance_covered)}")
 
             if abs(total_distance_covered) > distance_to_travel:
-                robot.stop()
+                motor.robot.stop()
                 break
 
     except KeyboardInterrupt:
