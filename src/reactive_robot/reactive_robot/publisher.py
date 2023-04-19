@@ -36,23 +36,6 @@ class Publisher(Node):  # 'MinimalPublisher' is a subclass (inherits) of 'Node'
         self.get_logger().info('Publishing: "%f"' % msg.range)
         self.publisher_.publish(msg)
 
-    def test_timer_callback(self):
-        '''
-        Callback method for testing purposes (for example when you want to test publishing
-        without using the ultrasonic sensors).
-        '''
-        us_distance = 2
-        msg = Range()
-        msg.header.stamp = self.get_clock().now().to_msg()
-        msg.header.frame_id = "/sonar_link"
-        msg.radiation_type = 0
-        msg.field_of_view = 0.0
-        msg.min_range = 0.0
-        msg.max_range = 10.0
-        msg.range = us_distance
-        self.get_logger().info('Publishing: "%f"' % msg.range)
-        self.publisher_.publish(msg)
-
 
 def main(args=None):
     rclpy.init(args=args)
