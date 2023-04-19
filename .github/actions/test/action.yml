@@ -1,6 +1,6 @@
 name: 'Test'
-description: 'Test using devcontainer'
+description: 'Test using minimal production container'
 runs:
   using: 'docker'
-  image: '../../../.devcontainer/Dockerfile'
+  image: '../../../Dockerfile'
   entrypoint: ".github/actions/test/run.sh"

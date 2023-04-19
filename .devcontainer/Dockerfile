@@ -1,4 +1,4 @@
-FROM althack/ros2:humble-full 
+FROM althack/ros2:humble-dev
 
 # ** [Optional] Uncomment this section to install additional packages. **
 #
@@ -16,7 +16,6 @@ ARG WORKSPACE
 RUN echo "if [ -f ${WORKSPACE}/install/setup.bash ]; then source ${WORKSPACE}/install/setup.bash; fi" >> /home/ros/.bashrc
 
 ## Pip dependencies
-# Upgrade pip
 RUN pip install --upgrade pip
 # Install dev dependencies
 COPY requirements.txt /tmp/requirements.txt
