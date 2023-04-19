@@ -1,6 +1,7 @@
 import math
 from gpiozero import RotaryEncoder, Robot
 import RPi.GPIO as GPIO
+# from time import sleep
 
 # L298N motor driver pins
 # RIGHT
@@ -19,8 +20,8 @@ L_ENCODER_B = 16
 DEFAULT_MOTOR_SPEED = 60
 
 
-robot = Robot(left=(MOTOR_INC, MOTOR_IND, MOTOR_ENA),
-              right=(MOTOR_INA, MOTOR_INB, MOTOR_ENB), pwm=False)
+robot = Robot(left=(MOTOR_INC, MOTOR_IND, MOTOR_ENB),
+              right=(MOTOR_INA, MOTOR_INB, MOTOR_ENA), pwm=False)
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(MOTOR_ENA, GPIO.OUT)
 GPIO.setup(MOTOR_ENB, GPIO.OUT)
@@ -48,7 +49,7 @@ distance_covered_right = 0
 
 # Encoder/motor specs
 gear_ratio = 20.4
-belt_diameter = 88  # millimeter
+belt_diameter = 87  # millimeter
 encoder_cpr = 48
 counts_per_rev = encoder_cpr * gear_ratio
 
