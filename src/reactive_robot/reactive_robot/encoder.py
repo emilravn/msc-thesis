@@ -27,8 +27,8 @@ class Encoders():
             max_steps=0,
             wrap=False)
 
-        self.encoder_left.when_rotated = self.on_rotate_left()
-        self.encoder_right.when_rotated = self.on_rotate_right()
+        self.encoder_left.when_rotated = self.on_rotate_left
+        self.encoder_right.when_rotated = self.on_rotate_right
 
         self.distance_travelled_left = 0
         self.distance_travelled_right = 0

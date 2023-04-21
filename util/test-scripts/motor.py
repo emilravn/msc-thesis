@@ -32,7 +32,12 @@ def cleanup_pins():
 
 if __name__ == "__main__":
     try:
-        print("Missing implementation")
+        pwm_left.ChangeDutyCycle(DEFAULT_MOTOR_SPEED)
+        pwm_right.ChangeDutyCycle(DEFAULT_MOTOR_SPEED)
+
+        print("Starting loop")
+        while True:
+            robot.forward()
     except KeyboardInterrupt:
         print("Stopped")
     finally:

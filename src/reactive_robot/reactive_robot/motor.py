@@ -28,12 +28,3 @@ pwm_right.start(100)
 
 def cleanup_pins():
     GPIO.cleanup()
-
-
-if __name__ == "__main__":
-    try:
-        print("Missing implementation")
-    except KeyboardInterrupt:
-        print("Stopped")
-    finally:
-        GPIO.cleanup()
