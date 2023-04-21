@@ -22,7 +22,7 @@ encoders = Encoders(L_ENCODER_A, L_ENCODER_B, R_ENCODER_A, R_ENCODER_B)
 class Publisher(Node):  # 'MinimalPublisher' is a subclass (inherits) of 'Node'
 
     def __init__(self):
-        super().__init__('ultrasonic_publisher')
+        super().__init__('publisher')
         # 3rd parameter, 'qos_profile' is "queue size"
         self.ultrasonic_publisher_ = self.create_publisher(Range, 'ultrasonic/distance', 10)
         self.encoder_publisher_ = self.create_publisher(Float32, "encoder/distance", 10)
@@ -73,6 +73,8 @@ if __name__ == '__main__':
         main()
     except KeyboardInterrupt:
         print("motor_subscriber stopped by User")
-        us_sensor.cleanup()
+        us_sensor.cleanup_pins()
+        encoders.cleanup_pins()
     finally:
-        us_sensor.cleanup()
+        us_sensor.cleanup_pins()
+        encoders.cleanup_pins()

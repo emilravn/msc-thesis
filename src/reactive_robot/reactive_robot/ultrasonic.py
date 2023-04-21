@@ -51,7 +51,7 @@ class Sonar():
 
         return(distance)
 
-    def cleanup(self):
+    def cleanup_pins(self):
         GPIO.cleanup()
 
 
