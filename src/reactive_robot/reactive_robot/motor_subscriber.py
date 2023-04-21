@@ -1,36 +1,66 @@
 import rclpy
 from rclpy.node import Node
 from sensor_msgs.msg import Range
+from std_msgs.msg import Float32
 
-from . import motor
+from .motor import Motor
 
-DEBUG = True
+# L298N motor driver pins
+# RIGHT
+MOTOR_INA = 24
+MOTOR_INB = 23
+MOTOR_ENA = 12
+# LEFT
+MOTOR_IND = 6
+MOTOR_INC = 5
+MOTOR_ENB = 13
+
+robot = Motor(MOTOR_INA, MOTOR_INB, MOTOR_INC, MOTOR_IND,
+              MOTOR_ENA, MOTOR_ENB)
+
+# Goal specifications
+DISTANCE_TO_TRAVEL = 40  # cm
 
 
 class Subscriber(Node):
 
     def __init__(self):
         super().__init__('motor_subscriber')
-        self.subscription = self.create_subscription(
+        self.ultrasonic_subscription = self.create_subscription(
             Range,
-            'reactive_robot/distance',
-            self.listener_callback,
+            'ultrasonic/distance',
+            self.ultrasonic_listener_callback,
             10)
-        self.subscription  # prevent unused variable warning
+        self.ultrasonic_subscription  # prevent unused variable warning
 
-    def listener_callback(self, msg: Range):
-        self.get_logger().info('I heard: "%s"' % msg.range)
-        dist_cm = msg.range*100
+        self.encoder_subscription = self.create_subscription(
+            Float32,
+            'encoder/distance',
+            self.encoder_listener_callback,
+            10)
+        self.encoder_subscription
+
+    def ultrasonic_listener_callback(self, msg: Range):
+        # self.get_logger().info('Ultrasonic: "%s"' % msg.range)
+        # dist_cm = msg.range*100
+        dist_cm = 50  # TODO: TEST remove
 
         if dist_cm > 55:
             # turn left
-            motor.turn_left()
+            robot.motors.left()
         elif (dist_cm < 45):
             # turn right
-            motor.turn_right()
+            robot.motors.right()
         else:
             # drive forward
-            motor.forward()
+            robot.motors.forward()
+
+    def encoder_listener_callback(self, msg: Float32):
+        self.get_logger().info('Encoder: "%s"' % msg.data)
+        distance_travelled = msg.data
+
+        if distance_travelled > 5:
+            robot.motors.stop()
 
 
 def main(args=None):

@@ -43,7 +43,7 @@ class Publisher(Node):  # 'MinimalPublisher' is a subclass (inherits) of 'Node'
         msg.min_range = 0.0
         msg.max_range = 10.0
         msg.range = us_distance
-        # self.get_logger().info('Ultrasonic publishing: "%f"' % msg.range)
+        self.get_logger().info('Ultrasonic publishing: "%f"' % msg.range)
         self.ultrasonic_publisher_.publish(msg)
 
     def encoder_callback(self):
