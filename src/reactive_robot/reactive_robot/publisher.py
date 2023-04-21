@@ -12,8 +12,10 @@ GPIO_ECHO = 27
 us_sensor = Sonar(GPIO_TRIGGER, GPIO_ECHO)
 
 # Motor encoder setup
-encoder.encoder_left.when_rotated = encoder.on_rotate_left()
-encoder.encoder_right.when_rotated = encoder.on_rotate_right()
+R_ENCODER_A = 25
+R_ENCODER_B = 22
+L_ENCODER_A = 26
+L_ENCODER_B = 16
 
 
 class Publisher(Node):  # 'MinimalPublisher' is a subclass (inherits) of 'Node'
