@@ -4,7 +4,7 @@ from sensor_msgs.msg import Range
 from std_msgs.msg import Float32
 
 from .ultrasonic import Sonar
-from . import encoder
+from .encoder import Encoders
 
 # Ultrasonic sensor setup
 GPIO_TRIGGER = 17
@@ -12,10 +12,11 @@ GPIO_ECHO = 27
 us_sensor = Sonar(GPIO_TRIGGER, GPIO_ECHO)
 
 # Motor encoder setup
-R_ENCODER_A = 25
-R_ENCODER_B = 22
 L_ENCODER_A = 26
 L_ENCODER_B = 16
+R_ENCODER_A = 25
+R_ENCODER_B = 22
+encoders = Encoders(L_ENCODER_A, L_ENCODER_B, R_ENCODER_A, R_ENCODER_B)
 
 
 class Publisher(Node):  # 'MinimalPublisher' is a subclass (inherits) of 'Node'
@@ -46,7 +47,7 @@ class Publisher(Node):  # 'MinimalPublisher' is a subclass (inherits) of 'Node'
         self.ultrasonic_publisher_.publish(msg)
 
     def encoder_callback(self):
-        distance_covered = (encoder.distance_covered_left + encoder.distance_covered_right) / 2
+        distance_covered = encoders.total_distance_travelled()
         msg = Float32()
         msg.data = distance_covered
         self.get_logger().info('Encoder publishing: "%f"' % msg.data)

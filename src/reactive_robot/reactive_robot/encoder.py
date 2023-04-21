@@ -11,9 +11,9 @@ ENCODER_CPR = 48
 COUNTS_PER_REV = ENCODER_CPR * GEAR_RATIO
 
 
-class Encoder():
+class Encoders():
 
-    def __init__(self, r_a: int, r_b: int, l_a: int, l_b: int):
+    def __init__(self, l_a: int, l_b: int, r_a: int, r_b: int):
 
         self.encoder_left = RotaryEncoder(
             l_a,
@@ -27,22 +27,28 @@ class Encoder():
             max_steps=0,
             wrap=False)
 
+        self.encoder_left.when_rotated = self.on_rotate_left()
+        self.encoder_right.when_rotated = self.on_rotate_right()
+
         self.distance_travelled_left = 0
         self.distance_travelled_right = 0
 
     def distance_travelled(self, counts):
-        """Returns distance in centimeters."""
+        """Returns measured travel distance in centimeters for a single encoder."""
         revs = counts / COUNTS_PER_REV
         distance = revs * math.pi * BELT_DIAMETER
         return distance
 
+    # TODO: check if this is the correct way to combine encoder measurements
+    def total_distance_travelled(self):
+        """Returns the total distance measured by both encoders."""
+        return (self.distance_travelled_left + self.distance_travelled_right) / 2
+
     def on_rotate_left(self):
-        global distance_covered_left
-        distance_covered_left = self.distance_travelled(self.encoder_left.steps)
+        self.distance_travelled_left = self.distance_travelled(self.encoder_left.steps)
 
     def on_rotate_right(self):
-        global distance_covered_right
-        distance_covered_right = self.distance_travelled(self.encoder_right.steps)
+        self.distance_travelled_right = self.distance_travelled(self.encoder_right.steps)
 
     def cleanup_pins(self):
         GPIO.cleanup()
