@@ -17,11 +17,11 @@ class UltrasonicPublisher(Node):  # 'MinimalPublisher' is a subclass (inherits) 
         # 3rd parameter, 'qos_profile' is "queue size"
 
         self.ultrasonic_publisher_ = self.create_publisher(Range, 'ultrasonic/distance', 10)
-        ultrasonic_timer_period = 0.1  # seconds
+        ultrasonic_timer_period = 0.2  # seconds
         self.ultrasonic_timer = self.create_timer(ultrasonic_timer_period, self.ultrasonic_callback)
 
     def ultrasonic_callback(self):
-        us_distance = us_sensor.get_distance()*0.01
+        us_distance = us_sensor.get_distance()
         msg = Range()
         msg.header.stamp = self.get_clock().now().to_msg()
         msg.header.frame_id = "/sonar_link"
