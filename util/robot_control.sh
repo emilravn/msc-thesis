@@ -53,12 +53,17 @@ case $action in
         handle_error
         ;;
     "sync")
-        if [ "$#" -eq 3 ] # Synchronizes $2 to target path $3
+        
+        if [ "$2" == 'syncrosws' ]
+        then
+            echo "Synchronizing dev ROS2 workspace to robot ROS2 workspace"
+            rsync -av -e ssh --exclude='.git*' /workspaces/msc-thesis/src $USER@$IP:/home/$USER/sfr_ros2_ws/ 1> /dev/null 2> /tmp/err;
+            handle_error
+        elif [ "$#" -eq 3 ] # Synchronizes $2 to target path $3
         then
             echo "Synchronizing $2 to $3... This might take a while." # Synchronize one file
             rsync -av -e ssh --exclude='.git*' $2 $USER@$IP:/home/$USER/$3 1> /dev/null 2> /tmp/err;
             handle_error
-    
         elif [ "$#" -eq 2 ] # Synchronizes $2 to root directory
         then
             echo "Synchronizing $2... This might take a while." # Synchronize one file
