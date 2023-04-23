@@ -35,32 +35,28 @@ class Subscriber(Node):
 
         self.encoder_subscription = self.create_subscription(
             Float32,
-            'encoder/distance',
+            'left_encoder/distance',
             self.encoder_listener_callback,
             10)
         self.encoder_subscription
 
     def ultrasonic_listener_callback(self, msg: Range):
-        # self.get_logger().info('Ultrasonic: "%s"' % msg.range)
-        # dist_cm = msg.range*100
-        dist_cm = 50  # TODO: TEST remove
+        self.get_logger().info('Ultrasonic: "%s"' % msg.range)
+        dist_cm = msg.range
 
-        if dist_cm > 55:
-            # turn left
-            robot.motors.left()
-        elif (dist_cm < 45):
-            # turn right
-            robot.motors.right()
-        else:
-            # drive forward
+        if dist_cm > 31 and dist_cm < 29:
             robot.motors.forward()
+        elif dist_cm < 29:
+            robot.motors.right()
+        elif dist_cm > 31:
+            robot.motors.left()
 
     def encoder_listener_callback(self, msg: Float32):
         self.get_logger().info('Encoder: "%s"' % msg.data)
-        distance_travelled = msg.data
+        # distance_travelled = msg.data
 
-        if distance_travelled > 5:
-            robot.motors.stop()
+        # if distance_travelled) > 1000:
+        # robot.motors.stop()
 
 
 def main(args=None):
