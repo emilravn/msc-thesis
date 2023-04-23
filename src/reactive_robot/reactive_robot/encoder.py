@@ -6,7 +6,7 @@ import RPi.GPIO as GPIO
 
 # Encoder/motor specs
 GEAR_RATIO = 20.4
-BELT_DIAMETER = 87  # millimeter
+BELT_DIAMETER = 180  # millimeter
 ENCODER_CPR = 48
 COUNTS_PER_REV = ENCODER_CPR * GEAR_RATIO
 
@@ -30,13 +30,14 @@ class Encoders():
         self.encoder_left.when_rotated = self.on_rotate_left
         self.encoder_right.when_rotated = self.on_rotate_right
 
-        self.distance_travelled_left = 0
-        self.distance_travelled_right = 0
+        self.distance_travelled_left = 0.0
+        self.distance_travelled_right = 0.0
 
     def distance_travelled(self, counts):
-        """Returns measured travel distance in centimeters for a single encoder."""
+        """Returns measured travel distance in millimeters for a single encoder."""
         revs = counts / COUNTS_PER_REV
         distance = revs * math.pi * BELT_DIAMETER
+
         return distance
 
     # TODO: check if this is the correct way to combine encoder measurements
