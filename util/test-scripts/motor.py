@@ -17,7 +17,7 @@ class Motor():
 
     def __init__(self, inA: int, inB: int, inC: int, inD: int,
                  enA: int, enB: int,
-                 initial_speed: float = 60.0):
+                 initial_speed: float = 80.0):
 
         self.motors = Robot(left=(inC, inD, enB),
                             right=(inA, inB, enA),
@@ -45,8 +45,10 @@ if __name__ == "__main__":
     try:
         robot = Motor(MOTOR_INA, MOTOR_INB, MOTOR_INC, MOTOR_IND,
                       MOTOR_ENA, MOTOR_ENB)
-        while True:
-            robot.motors.forward()
+        
+        robot.motors.left()
+        sleep(1.5)
+
     except KeyboardInterrupt:
         print("Stopped by user")
     finally:

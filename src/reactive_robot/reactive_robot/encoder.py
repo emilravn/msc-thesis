@@ -33,6 +33,9 @@ class Encoders():
         self.distance_travelled_left = 0.0
         self.distance_travelled_right = 0.0
 
+        self.initial_angle = 0
+        self.current_angle = 0
+
     def distance_travelled(self, counts):
         """Returns measured travel distance in millimeters for a single encoder."""
         revs = counts / COUNTS_PER_REV
