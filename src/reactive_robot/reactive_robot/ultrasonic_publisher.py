@@ -18,7 +18,8 @@ class UltrasonicPublisher(Node):  # 'MinimalPublisher' is a subclass (inherits) 
 
         self.ultrasonic_publisher_ = self.create_publisher(Range, 'ultrasonic/distance', 10)
         ultrasonic_timer_period = 0.2  # seconds
-        self.ultrasonic_timer = self.create_timer(ultrasonic_timer_period, self.ultrasonic_callback)
+        self.ultrasonic_timer = self.create_timer(
+            ultrasonic_timer_period, self.ultrasonic_callback)
 
     def ultrasonic_callback(self):
         us_distance = us_sensor.get_distance()

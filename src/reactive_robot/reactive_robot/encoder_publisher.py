@@ -19,8 +19,10 @@ class EncoderPublisher(Node):
     def __init__(self):
         super().__init__('encoder_publisher')
         self.left_encoder_publisher_ = self.create_publisher(Float32, "left_encoder/distance", 10)
-        self.right_encoder_publisher_ = self.create_publisher(Float32, "right_encoder/distance", 10)
-        self.total_encoder_publisher_ = self.create_publisher(Float32, "total_encoder/distance", 10)
+        self.right_encoder_publisher_ = self.create_publisher(
+            Float32, "right_encoder/distance", 10)
+        self.total_encoder_publisher_ = self.create_publisher(
+            Float32, "total_encoder/distance", 10)
         encoder_timer_period = 0.1
         self.left_encoder_timer = self.create_timer(
             encoder_timer_period, self.left_encoder_callback)
