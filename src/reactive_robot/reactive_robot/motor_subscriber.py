@@ -22,7 +22,6 @@ robot = Motor(MOTOR_INA, MOTOR_INB, MOTOR_INC, MOTOR_IND,
 CROP_ROWS = 1
 length_of_crop_row_cm = 50
 width_of_row_cm = 20
-dist_to_crop_cm = 20
 
 # Robot info
 length_of_robot_cm = 20
@@ -52,25 +51,36 @@ class Subscriber(Node):
         self.ultrasonic_distance = None
         self.left_encoder_distance = None
 
-        self.timer = self.create_timer(10, self.crop_following_algorithm)
-
     def ultrasonic_listener_callback(self, msg: Range):
         self.get_logger().info('Ultrasonic: "%s"' % msg.range)
         dist_cm = msg.range
         self.ultrasonic_distance = dist_cm
+        # testing out follow_crop
+        self.follow_crop(dist_cm)
 
     def encoder_listener_callback(self, msg: Float32):
         self.get_logger().info('Encoder: "%s"' % msg.data)
         distance_travelled = msg.data
         self.left_encoder_distance = distance_travelled
 
-    def follow_crop(self, us_dist_cm):
-        if us_dist_cm > dist_to_crop_cm+1 and us_dist_cm < dist_to_crop_cm-1:
-            robot.motors.forward()
-        elif us_dist_cm < dist_to_crop_cm-1:
-            robot.set_speed(50, 30)
-        elif us_dist_cm > dist_to_crop_cm+1:
-            robot.set_speed(50, 30)
+    def follow_crop(self, current_distance):
+        dist_to_crop_cm = 20
+
+        if current_distance > dist_to_crop_cm + 10:
+            robot.set_speed(left_speed=0.6)
+            print("turn left")
+        elif current_distance > dist_to_crop_cm + 5:
+            robot.set_speed(left_speed=0.5)
+            print("turn slightly left")
+        elif current_distance < dist_to_crop_cm - 10:
+            robot.set_speed(right_speed=0.6)
+            print("turn right")
+        elif current_distance < dist_to_crop_cm - -5:
+            robot.set_speed(right_speed=0.5)
+            print("turn slightly right")
+        else:
+            robot.set_speed()
+            print("i'm straight")
 
     def turn_left_around_crop_row(self, enc_dist_cm):
         global CROP_ROWS
@@ -90,11 +100,10 @@ class Subscriber(Node):
     def crop_following_algorithm(self):
         if self.left_encoder_distance is not None and self.ultrasonic_distance is not None:
             while(CROP_ROWS > 0):
-                if(self.left_encoder_distance/100.0) < length_of_crop_row_cm:
-                    self.follow_crop(self.left_encoder_distance/100)
+                if(self.left_encoder_distance) < length_of_crop_row_cm:
+                    self.follow_crop(self.ultrasonic_distance)
                 else:
-                    self.turn_left_around_crop_row(
-                        self.left_encoder_distance/100, self.ultrasonic_distance)
+                    self.turn_left_around_crop_row(self.left_encoder_distance)
 
 
 def main(args=None):
