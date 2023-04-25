@@ -4,7 +4,7 @@ from gpiozero import DistanceSensor
 
 class Sonar():
 
-    def __init__(self, gpio_trigger, gpio_echo):
+    def __init__(self, gpio_echo, gpio_trigger):
         self.sensor = DistanceSensor(gpio_echo, gpio_trigger)
 
     def get_distance(self):
