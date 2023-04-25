@@ -8,7 +8,8 @@ GPIO_TRIGGER = 17
 GPIO_ECHO = 27
 us_sensor = Sonar(GPIO_TRIGGER, GPIO_ECHO)
 
-class Publisher(Node): # 'MinimalPublisher' is a subclass (inherits) of 'Node'
+
+class Publisher(Node):  # 'MinimalPublisher' is a subclass (inherits) of 'Node'
 
     def __init__(self):
         super().__init__('ultrasonic_publisher')

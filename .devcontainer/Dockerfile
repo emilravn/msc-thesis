@@ -4,7 +4,7 @@ FROM althack/ros2:humble-dev
 #
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update \
-   && apt-get -y install --no-install-recommends python3-autopep8 flake8 \
+   && apt-get -y install --no-install-recommends python3-autopep8 flake8 rsync \
    # Clean up
    && apt-get autoremove -y \
    && apt-get clean -y \

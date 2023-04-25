@@ -2,6 +2,16 @@ from gpiozero import Robot
 import RPi.GPIO as GPIO
 from time import sleep
 
+# L298N motor driver pins
+# RIGHT
+MOTOR_INA = 24
+MOTOR_INB = 23
+MOTOR_ENA = 12
+# LEFT
+MOTOR_IND = 6
+MOTOR_INC = 5
+MOTOR_ENB = 13
+
 
 class Motor():
 
@@ -12,7 +22,6 @@ class Motor():
         self.motors = Robot(left=(inC, inD, enB),
                             right=(inA, inB, enA),
                             pwm=False)
-
         # GPIO setup
         GPIO.setmode(GPIO.BCM)
         GPIO.setup(enA, GPIO.OUT)
@@ -29,4 +38,16 @@ class Motor():
         self.pwm_right.ChangeDutyCycle(right_speed)
 
     def cleanup_pins():
+        GPIO.cleanup()
+
+
+if __name__ == "__main__":
+    try:
+        robot = Motor(MOTOR_INA, MOTOR_INB, MOTOR_INC, MOTOR_IND,
+                      MOTOR_ENA, MOTOR_ENB)
+        while True:
+            robot.motors.forward()
+    except KeyboardInterrupt:
+        print("Stopped by user")
+    finally:
         GPIO.cleanup()

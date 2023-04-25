@@ -1,9 +1,6 @@
 name: ROS
 
 on:
-  push:
-    paths:
-      - "src/**"
   pull_request:
     branches: [main]
     paths:
