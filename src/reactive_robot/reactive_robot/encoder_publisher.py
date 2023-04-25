@@ -19,15 +19,17 @@ class EncoderPublisher(Node):
     def __init__(self):
         super().__init__('encoder_publisher')
         self.left_encoder_publisher_ = self.create_publisher(Float32, "left_encoder/distance", 10)
-        self.right_encoder_publisher_ = self.create_publisher(Float32, "right_encoder/distance", 10)
-        # self.total_encoder_publisher_ = self.create_publisher(Float32, "total_encoder/distance", 10)
+        self.right_encoder_publisher_ = self.create_publisher(
+            Float32, "right_encoder/distance", 10)
+        self.total_encoder_publisher_ = self.create_publisher(
+            Float32, "total_encoder/distance", 10)
         encoder_timer_period = 0.1
         self.left_encoder_timer = self.create_timer(
             encoder_timer_period, self.left_encoder_callback)
         self.right_encoder_timer = self.create_timer(
             encoder_timer_period, self.right_encoder_callback)
-        # self.total_encoder_timer = self.create_timer(
-        #     encoder_timer_period, self.total_encoder_callback)
+        self.total_encoder_timer = self.create_timer(
+            encoder_timer_period, self.total_encoder_callback)
 
     def left_encoder_callback(self):
         distance_left_encoder = encoders.distance_travelled_left
@@ -43,12 +45,12 @@ class EncoderPublisher(Node):
         self.get_logger().info(f'right encoder publishing: {msg.data}mm')
         self.right_encoder_publisher_.publish(msg)
 
-    # def total_encoder_callback(self):
-    #     distance_covered = encoders.total_distance_travelled()
-    #     msg = Float32()
-    #     msg.data = distance_covered
-    #     self.get_logger().info('total encoder publishing: "%f"' % msg.data)
-    #     self.total_encoder_publisher_.publish(msg)
+    def total_encoder_callback(self):
+        distance_covered = encoders.total_distance_travelled()
+        msg = Float32()
+        msg.data = distance_covered
+        self.get_logger().info('total encoder publishing: "%f"' % msg.data)
+        self.total_encoder_publisher_.publish(msg)
 
 
 def main(args=None):

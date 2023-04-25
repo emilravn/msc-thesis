@@ -37,7 +37,7 @@ class Encoders():
         self.current_angle = 0
 
     def distance_travelled(self, counts):
-        """Returns measured travel distance in millimeters for a single encoder."""
+        """Return measured travel distance in millimeters for a single encoder."""
         revs = counts / COUNTS_PER_REV
         distance = revs * math.pi * BELT_DIAMETER
 
@@ -45,7 +45,7 @@ class Encoders():
 
     # TODO: check if this is the correct way to combine encoder measurements
     def total_distance_travelled(self):
-        """Returns the total distance measured by both encoders."""
+        """Return the total distance measured by both encoders."""
         return (self.distance_travelled_left + self.distance_travelled_right) / 2
 
     def on_rotate_left(self):

@@ -54,11 +54,17 @@ case $action in
         ;;
     "sync")
         
-        if [ "$2" == 'syncrosws' ]
+
+        
+        if [ "$2" == 'rosws' ]
         then
             echo "Synchronizing dev ROS2 workspace to robot ROS2 workspace"
             rsync -av -e ssh --exclude='.git*' /workspaces/msc-thesis/src $USER@$IP:/home/$USER/sfr_ros2_ws/ 1> /dev/null 2> /tmp/err;
             handle_error
+        elif ["$2" == 'util']
+        then
+            echo "Synchronizing util to robot"
+            rsync -av -e ssh --exclude='.git*' /workspaces/msc-thesis/util $USER@$IP:/home/$USER/util 1> /dev/null 2> /tmp/err;
         elif [ "$#" -eq 3 ] # Synchronizes $2 to target path $3
         then
             echo "Synchronizing $2 to $3... This might take a while." # Synchronize one file
@@ -70,7 +76,14 @@ case $action in
             rsync -av -e ssh --exclude='.git*' $2 $USER@$IP:/home/$USER 1> /dev/null 2> /tmp/err;
             handle_error
         else
-            echo "Unable to synchronize. You must choose a file or a folder to sync!"
+            echo "Unable to synchronize. You must choose a command, file or a folder to sync!"
+            echo "Available Commands" 
+            echo "=================="
+            echo "- rosws: Synchronize ROS2 workspace to the robot"
+            echo "- util: Synchronize util to the root directory of the robot"
+            echo "- \$2 to \$3 on robot"
+            echo "- \$2 to the root directory of the robot"
+            printf '%s'
         fi
         ;;
     "help" | "--help" | "-h")
