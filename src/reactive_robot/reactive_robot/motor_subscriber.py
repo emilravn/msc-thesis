@@ -31,15 +31,33 @@ DISTANCE_TO_TRAVEL = 40  # cm
 
 
 class Subscriber(Node):
-
     def __init__(self):
-        super().__init__('motor_subscriber')
-        self.ultrasonic_subscription = self.create_subscription(
+        super().__init__('motor_subscriber')  # type: ignore
+
+        self.back_ultrasonic_subscription = self.create_subscription(
             Range,
-            'ultrasonic/distance',
-            self.ultrasonic_listener_callback,
+            'ultrasonic/back/distance',
+            self.back_ultrasonic_listener_callback,
             10)
-        self.ultrasonic_subscription  # prevent unused variable warning
+        self.back_ultrasonic_subscription
+
+        self.middle_ultrasonic_subscription = self.create_subscription(
+            Range,
+            'ultrasonic/middle/distance',
+            self.middle_ultrasonic_listener_callback,
+            10)
+        self.middle_ultrasonic_subscription
+
+        self.front_ultrasonic_subscription = self.create_subscription(
+            Range,
+            'ultrasonic/front/distance',
+            self.front_ultrasonic_listener_callback,
+            10)
+        self.front_ultrasonic_subscription
+
+        self.back_ultrasonic_distance = None
+        self.middle_ultrasonic_distance = None
+        self.front_ultrasonic_distance = None
 
         self.encoder_subscription = self.create_subscription(
             Float32,
@@ -48,62 +66,25 @@ class Subscriber(Node):
             10)
         self.encoder_subscription
 
-        self.ultrasonic_distance = None
-        self.left_encoder_distance = None
-
-    def ultrasonic_listener_callback(self, msg: Range):
-        self.get_logger().info('Ultrasonic: "%s"' % msg.range)
+    def back_ultrasonic_listener_callback(self, msg: Range):
+        self.get_logger().info(f'back distance: {msg.range}')
         dist_cm = msg.range
-        self.ultrasonic_distance = dist_cm
-        # testing out follow_crop
-        self.follow_crop(dist_cm)
+        self.back_ultrasonic_distance = dist_cm
+
+    def middle_ultrasonic_listener_callback(self, msg: Range):
+        self.get_logger().info(f'middle distance: {msg.range}')
+        dist_cm = msg.range
+        self.middle_ultrasonic_distance = dist_cm
+
+    def front_ultrasonic_listener_callback(self, msg: Range):
+        self.get_logger().info(f'front distance: {msg.range}')
+        dist_cm = msg.range
+        self.front_ultrasonic_distance = dist_cm
 
     def encoder_listener_callback(self, msg: Float32):
         self.get_logger().info('Encoder: "%s"' % msg.data)
         distance_travelled = msg.data
         self.left_encoder_distance = distance_travelled
-
-    def follow_crop(self, current_distance):
-        dist_to_crop_cm = 20
-
-        if current_distance > dist_to_crop_cm + 10:
-            robot.set_speed(left_speed=0.6)
-            print("turn left")
-        elif current_distance > dist_to_crop_cm + 5:
-            robot.set_speed(left_speed=0.5)
-            print("turn slightly left")
-        elif current_distance < dist_to_crop_cm - 10:
-            robot.set_speed(right_speed=0.6)
-            print("turn right")
-        elif current_distance < dist_to_crop_cm - -5:
-            robot.set_speed(right_speed=0.5)
-            print("turn slightly right")
-        else:
-            robot.set_speed()
-            print("i'm straight")
-
-    def turn_left_around_crop_row(self, enc_dist_cm):
-        global CROP_ROWS
-        # Drive length of robot to make sure it is clear of the crop row
-        if(enc_dist_cm < length_of_robot_cm + enc_dist_cm):
-            robot.motors.forward(0.5)
-        # Now driven length of robot and clear for turning left around crop row
-        self.turn_90_degrees(enc_dist_cm)
-        CROP_ROWS = CROP_ROWS - 1
-
-    def turn_90_degrees(self, prev_enc_dist_cm):
-        while True:
-            current_enc_dist_cm = self.left_encoder_distance / 100
-            if current_enc_dist_cm < prev_enc_dist_cm - 240:
-                robot.motors.left()
-
-    def crop_following_algorithm(self):
-        if self.left_encoder_distance is not None and self.ultrasonic_distance is not None:
-            while(CROP_ROWS > 0):
-                if(self.left_encoder_distance) < length_of_crop_row_cm:
-                    self.follow_crop(self.ultrasonic_distance)
-                else:
-                    self.turn_left_around_crop_row(self.left_encoder_distance)
 
 
 def main(args=None):
