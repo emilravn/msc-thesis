@@ -3,36 +3,14 @@ from rclpy.node import Node
 from sensor_msgs.msg import Range
 from std_msgs.msg import Float32
 
-from .motor import Motor
-
-# L298N motor driver pins
-# RIGHT
-MOTOR_INA = 24
-MOTOR_INB = 23
-MOTOR_ENA = 12
-# LEFT
-MOTOR_IND = 6
-MOTOR_INC = 5
-MOTOR_ENB = 13
-
-robot = Motor(MOTOR_INA, MOTOR_INB, MOTOR_INC, MOTOR_IND,
-              MOTOR_ENA, MOTOR_ENB)
-
-# Crop information in lab env
-CROP_ROWS = 1
-length_of_crop_row_cm = 50
-width_of_row_cm = 20
-
-# Robot info
-length_of_robot_cm = 20
-
-# Goal specifications
-DISTANCE_TO_TRAVEL = 40  # cm
+from .crop_follower_node import CropFollower
 
 
 class Subscriber(Node):
     def __init__(self):
         super().__init__('motor_subscriber')  # type: ignore
+
+        self.crop_follower = CropFollower()
 
         self.back_ultrasonic_subscription = self.create_subscription(
             Range,
@@ -59,39 +37,56 @@ class Subscriber(Node):
         self.middle_ultrasonic_distance = None
         self.front_ultrasonic_distance = None
 
-        self.encoder_subscription = self.create_subscription(
+        self.right_encoder_subscription = self.create_subscription(
+            Float32,
+            'right_encoder/distance',
+            self.right_encoder_listener_callback,
+            10)
+        self.right_encoder_subscription
+
+        self.left_encoder_subscription = self.create_subscription(
             Float32,
             'left_encoder/distance',
-            self.encoder_listener_callback,
+            self.left_encoder_listener_callback,
             10)
-        self.encoder_subscription
+        self.left_encoder_subscription
+
+        self.total_encoder_subscription = self.create_subscription(
+            Float32,
+            'total_encoder/distance',
+            self.total_encoder_listener_callback,
+            10)
+        self.total_encoder_subscription
 
     def back_ultrasonic_listener_callback(self, msg: Range):
         self.get_logger().info(f'back distance: {msg.range}')
-        dist_cm = msg.range
-        self.back_ultrasonic_distance = dist_cm
+        self.back_ultrasonic_distance = msg.range
 
     def middle_ultrasonic_listener_callback(self, msg: Range):
         self.get_logger().info(f'middle distance: {msg.range}')
-        dist_cm = msg.range
-        self.middle_ultrasonic_distance = dist_cm
+        self.middle_ultrasonic_distance = msg.range
 
     def front_ultrasonic_listener_callback(self, msg: Range):
         self.get_logger().info(f'front distance: {msg.range}')
-        dist_cm = msg.range
-        self.front_ultrasonic_distance = dist_cm
+        self.front_ultrasonic_distance = msg.range
 
-    def encoder_listener_callback(self, msg: Float32):
-        self.get_logger().info('Encoder: "%s"' % msg.data)
-        distance_travelled = msg.data
-        self.left_encoder_distance = distance_travelled
+    def right_encoder_listener_callback(self, msg: Float32):
+        self.get_logger().info(f'right encoder distance: {msg.data}')
+        self.right_encoder_distance = msg.data
+
+    def left_encoder_listener_callback(self, msg: Float32):
+        self.get_logger().info(f'left encoder distance: {msg.data}')
+        self.left_encoder_distance = msg.data
+
+    def total_encoder_listener_callback(self, msg: Float32):
+        self.get_logger().info(f'total encoder distance: {msg.data}')
+        self.total_encoder_distance = msg.data
 
 
 def main(args=None):
     rclpy.init(args=args)
 
     motor_subscriber = Subscriber()
-
     rclpy.spin(motor_subscriber)
 
     # Destroy the node explicitly
