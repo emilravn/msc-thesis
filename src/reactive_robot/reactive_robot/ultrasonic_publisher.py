@@ -10,8 +10,8 @@ class UltrasonicPublisher(Node):  # 'MinimalPublisher' is a subclass (inherits) 
     def __init__(self):
         super().__init__('ultrasonic_publisher')
 
-        self.back_sensor = Sonar('middle', 27, 17)
-        self.middle_sensor = Sonar('back', 7, 8)
+        self.back_sensor = Sonar('back', 7, 8)
+        self.middle_sensor = Sonar('middle', 27, 17)
         self.front_sensor = Sonar('front', 15, 14)
 
         # publishers
