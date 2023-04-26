@@ -3,6 +3,7 @@ from rclpy.node import Node
 from sensor_msgs.msg import Range
 from std_msgs.msg import Float32
 from .motor_controller import MotorController
+from math import atan, pi
 
 # Crop information in lab env
 CROP_ROWS = 1
@@ -22,9 +23,9 @@ class CropFollowerNode(Node):
 
         self.desired_dist_to_crop = 30
         self.steering_angle = 0.0
-        self.kp = 0.5
+        self.kp = 0.1
         self.speed = 0.5
-        
+
         self.robot = MotorController()
 
         self.back_ultrasonic_subscription = self.create_subscription(
@@ -65,7 +66,7 @@ class CropFollowerNode(Node):
             Float32,
             'total_encoder/distance',
             self.total_encoder_listener_callback,
-            10)      
+            10)
 
         self.create_timer(0.02, self.follow_crop)
 
@@ -88,15 +89,25 @@ class CropFollowerNode(Node):
         self.total_encoder_distance = msg.data
 
     def follow_crop(self):
-        if self.middle_ultrasonic_distance > self.desired_dist_to_crop + 2:
-            self.robot.curve_left(0.3)
-            print(f"curve left with distance value: {self.middle_ultrasonic_distance}")
-        elif self.middle_ultrasonic_distance < self.desired_dist_to_crop - 2:
-            self.robot.curve_right(0.3)
-            print(f"curve right with distance value: {self.middle_ultrasonic_distance}")
-        else:
-            self.robot.drive_forward(0.6)
 
+        # Calculate the error
+        error = self.desired_dist_to_crop - self.middle_ultrasonic_distance
+
+        # Calculate the sterring angle
+        steering_angle = atan(self.kp * error)
+
+        # Set the robot's steering angle
+
+        self.robot.robot.value = (0.5 + steering_angle / (2 * pi), 0.5 - steering_angle / (2 * pi))
+
+        # if self.middle_ultrasonic_distance > self.desired_dist_to_crop:
+        #     self.robot.curve_left(0.18)
+        #     print(f"curve left with distance value: {self.middle_ultrasonic_distance}")
+        # elif self.middle_ultrasonic_distance < self.desired_dist_to_crop - 10:
+        #     self.robot.curve_right(0.18)
+        #     print(f"curve right with distance value: {self.middle_ultrasonic_distance}")
+        # elif self.desired_dist_to_crop - 10 < self.middle_ultrasonic_distance and self.middle_ultrasonic_distance < self.desired_dist_to_crop:
+        #     self.robot.drive_forward(0.6)
 
     def turn_left_around_crop_row(self, enc_dist_cm):
         global CROP_ROWS
