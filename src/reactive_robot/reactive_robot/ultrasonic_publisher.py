@@ -5,8 +5,8 @@ from functools import partial
 
 from .ultrasonic import Sonar
 
-middle = Sonar('back', 27, 17)
-back = Sonar('middle', 7, 8)
+middle = Sonar('middle', 27, 17)
+back = Sonar('back', 7, 8)
 front = Sonar('front', 15, 14)
 
 SPIN_QUEUE = []
@@ -20,7 +20,7 @@ class UltrasonicPublisher(Node):  # 'MinimalPublisher' is a subclass (inherits) 
         # 3rd parameter, 'qos_profile' is "queue size"
 
         # seconds
-        timer_period = 0.2
+        timer_period = 0.02
         callback_function = partial(self.callback, sensor)
         self.ultrasonic_publisher_ = self.create_publisher(Range, topic, 10)
         self.ultrasonic_timer = self.create_timer(timer_period, callback_function)
