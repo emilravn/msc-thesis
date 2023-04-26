@@ -17,9 +17,9 @@ class Sonar():
 
 if __name__ == "__main__":
     try:
-        GPIO_TRIGGER = 17
-        GPIO_ECHO = 27
-        us_sensor = Sonar(GPIO_TRIGGER, GPIO_ECHO)
+        middle_gpio_echo = 27
+        middle_gpio_trigger = 17
+        us_sensor = Sonar('middle', middle_gpio_echo, middle_gpio_trigger)
 
         print("Measuring distance...\n")
         while True:
