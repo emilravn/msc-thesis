@@ -4,19 +4,17 @@ from sensor_msgs.msg import Range
 from std_msgs.msg import Float32
 from .motor_controller import MotorController
 from math import atan, pi
-from time import sleep
-
 
 # Crop information in lab env
-CROP_ROWS = 1
-LENGTH_OF_CROP_ROW_CM = 50
-WIDTH_OF_ROW_CM = 20
+CROP_ROWS = 2
+LENGTH_OF_CROP_ROW_CM = 43  # Plastic box cm
+WIDTH_OF_ROW_CM = 33  # Plastic box cm
 
 # Robot info
-LENGTH_OF_ROBOT_CM = 20
+LENGTH_OF_ROBOT_CM = 28
 
 # Goal specifications
-DISTANCE_TO_TRAVEL = 40  # cm
+DISTANCE_TO_TRAVEL = 40  # mm
 
 
 class CropFollowerNode(Node):
@@ -72,6 +70,10 @@ class CropFollowerNode(Node):
             self.total_encoder_listener_callback,
             10)
 
+        self.left_encoder_distance = None
+        self.right_encoder_distance = None
+        self.total_encoder_distance = None
+
         self.create_timer(0.02, self.follow_crop)
 
     def back_ultrasonic_listener_callback(self, msg: Range):
@@ -126,25 +128,30 @@ class CropFollowerNode(Node):
     def turn_left_around_crop_row(self, enc_dist_cm):
         global CROP_ROWS
         # Drive length of robot to make sure it is clear of the crop row
-        if(enc_dist_cm < LENGTH_OF_ROBOT_CM + enc_dist_cm):
-            self.robot.motors.forward()
+        if enc_dist_cm < LENGTH_OF_ROBOT_CM + enc_dist_cm:
+            self.get_logger().info('Driving length of robot to be clear of the crops')
+            self.follow_crop()
         # Now driven length of robot and clear for turning left around crop row
-        self.turn_90_degrees(enc_dist_cm)
+        else:
+            self.turn_90_degrees(enc_dist_cm)
         CROP_ROWS = CROP_ROWS - 1
 
     def turn_90_degrees(self, prev_enc_dist_cm):
-        while True:
-            current_enc_dist_cm = self.left_encoder_distance / 100
-            if current_enc_dist_cm < prev_enc_dist_cm - 240:
-                self.robot.motors.left()
+        current_enc_dist_cm = self.total_encoder_distance / 10
+        if current_enc_dist_cm < prev_enc_dist_cm - 240:
+            self.get_logger().info('Turning left around crop row now!')
+            self.robot.motors.left()
 
     def crop_following_algorithm(self):
-        if self.total_encoder is not None and self.back_us is not None:
-            while(CROP_ROWS > 0):
-                if(self.left_encoder) < LENGTH_OF_CROP_ROW_CM:
-                    self.follow_crop()
-                else:
-                    self.turn_left_around_crop_row(self.left_encoder)
+        if self.total_encoder_distance is not None and CROP_ROWS > 0:
+            if self.total_encoder_distance / 10 < LENGTH_OF_CROP_ROW_CM:
+                self.follow_crop()
+            else:
+                self.get_logger().info('End of crop')
+                self.turn_left_around_crop_row(self.total_encoder_distance)
+        else:
+            self.robot.motors.stop()
+            self.get_logger().info('Done!')
 
 
 def main(args=None):
