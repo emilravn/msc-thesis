@@ -4,6 +4,8 @@ from sensor_msgs.msg import Range
 from std_msgs.msg import Float32
 from .motor_controller import MotorController
 from math import atan, pi
+from time import sleep
+
 
 # Crop information in lab env
 CROP_ROWS = 1
@@ -23,8 +25,8 @@ class CropFollowerNode(Node):
 
         self.desired_dist_to_crop = 30
         self.steering_angle = 0.0
-        self.kp = 0.1
-        self.kd = 0.02  # Derivative gain
+        self.kp = 0.05  # the best kp
+        self.kd = 5  # the best Derivative gain
         self.speed = 0.5
         self.prev_error = 0
 
