@@ -43,7 +43,6 @@
         "**/log": true
     },
     "cSpell.words": [
-        "RTPS",
         "athackst",
         "autopep",
         "cmake",
@@ -52,6 +51,8 @@
         "DCMAKE",
         "deque",
         "devcontainer",
+        "GPIO",
+        "gpiozero",
         "ints",
         "noqa",
         "pytest",
@@ -65,8 +66,7 @@
         "uncrustify",
         "Wextra",
         "Wpedantic",
-        "xmllint",
-        "GPIO"
+        "xmllint"
     ],
     "cSpell.allowCompoundWords": true,
     "cSpell.ignorePaths": [
