@@ -120,7 +120,8 @@ class CropFollowerNode(Node):
         steering_angle = atan(self.kp * error + derivative) * steering_angle / abs(steering_angle)
 
         # Set the robot's steering angle
-        self.robot.motors.value = (0.5 + steering_angle / (2 * pi), 0.5 - steering_angle / (2 * pi))
+        self.robot.motors.value = (0.5 + steering_angle / (2 * pi),
+                                   0.5 - steering_angle / (2 * pi))
 
         # Update the previous error
         self.prev_error = error

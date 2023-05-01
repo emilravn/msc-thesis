@@ -8,7 +8,7 @@ class Sonar():
         self.location = location
 
     def get_distance(self):
-        "Return distance in centimeters."
+        """Return distance in centimeters."""
         return self.sensor.distance * 100
 
     def __str__(self):
