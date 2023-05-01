@@ -37,11 +37,11 @@ class Encoders():
         self.current_angle = 0
 
     def distance_travelled(self, counts):
-        """Return measured travel distance in millimeters for a single encoder."""
+        """Return measured travel distance in centimeters for a single encoder."""
         revs = counts / COUNTS_PER_REV
         distance = revs * math.pi * BELT_DIAMETER
 
-        return distance
+        return distance / 10
 
     # TODO: check if this is the correct way to combine encoder measurements
     def total_distance_travelled(self):
