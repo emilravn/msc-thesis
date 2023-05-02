@@ -1,4 +1,4 @@
-from gpiozero import Robot
+from gpiozero import Robot, PWMOutputDevice, Motor
 import RPi.GPIO as GPIO
 from time import sleep
 
@@ -9,20 +9,13 @@ class MotorController():
                  inC: int = 5, inD: int = 6,
                  enA: int = 12, enB: int = 13):
 
-        self.motors = Robot(left=(inC, inD), right=(inA, inB), pwm=False)
+        self.motors = Robot(left=(inC, inD), right=(inA, inB), pwm=True)
 
-        # GPIO setup
-        GPIO.setmode(GPIO.BCM)
-        GPIO.setup(enA, GPIO.OUT)
-        GPIO.setup(enB, GPIO.OUT)
-        self.pwm_left = GPIO.PWM(enB, 20)
-        self.pwm_right = GPIO.PWM(enA, 20)
-        self.pwm_left.start(100)
-        self.pwm_right.start(100)
+        self.pwmA = PWMOutputDevice(enA, active_high=True, frequency=18, initial_value=0.72)
+        self.pwmB = PWMOutputDevice(enB, active_high=True, frequency=18, initial_value=0.72)
 
     def set_speed(self, left_speed: float, right_speed: float):
-        self.pwm_left.ChangeDutyCycle(left_speed)
-        self.pwm_right.ChangeDutyCycle(right_speed)
+        self.motors.value = (left_speed, right_speed)
 
     def drive_forward(self):
         self.motors.forward()
@@ -45,5 +38,8 @@ class MotorController():
 
 if __name__ == "__main__":
     robot = MotorController()
-    robot.set_speed()
-    sleep(10)
+    robot.set_speed(1, 1)
+    sleep(0.9)
+    robot.set_speed(0.5,0.5)
+    sleep(5)
+
