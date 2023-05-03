@@ -5,7 +5,6 @@ from scd30_i2c import SCD30
 
 
 class SCD30Publisher(Node):
-
     def __init__(self):
         super().__init__('scd30_publisher')
 
@@ -26,7 +25,8 @@ class SCD30Publisher(Node):
             if m is not None:
                 msg.data = m
                 self.get_logger().info(
-                    f"SCD30 publishing: CO2: {m[0]:.2f}ppm, temp: {m[1]:.2f}'C, humidity: {m[2]:.2f}%")
+                    f"SCD30 publishing: CO2: {m[0]:.2f}ppm, " +
+                    f"temp: {m[1]:.2f}'C, humidity: {m[2]:.2f}%")
                 self.scd30_publisher_.publish(msg)
 
 
