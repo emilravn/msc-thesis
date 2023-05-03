@@ -13,5 +13,10 @@ def generate_launch_description():
             package='reactive_robot',
             executable='ultrasonic_publisher',
             name='ultrasonic_publisher_node'
+        ),
+        Node(
+            package='reactive_robot',
+            executable='scd30_publisher',
+            name='scd30_publisher_node'
         )
     ])
