@@ -1,8 +1,15 @@
 {
     "editor.tabSize": 4,
-    "editor.rulers": [
-        100
-    ],
+    "[python]": {
+        "editor.defaultFormatter": "ms-python.python",
+        "editor.formatOnSave": true,
+        "editor.codeActionsOnSave": {
+            "source.organizeImports": true
+        },
+        "editor.rulers": [
+            99
+        ]
+    },
     "files.associations": {
         "*.repos": "yaml",
         "*.world": "xml",
@@ -23,17 +30,15 @@
     "python.linting.flake8Path": "/usr/bin/flake8",
     // Apply formatting rules to autopep8
     "python.formatting.autopep8Args": [
-        "--max-line-length=100"
+        "--max-line-length=99"
+    ],
+    "python.formatting.provider": "black",
+    "python.formatting.blackArgs": [
+        "--line-length=99"
     ],
     "python.linting.flake8Args": [
-        "--max-line-length=100"
+        "--max-line-length=99"
     ],
-    // "C_Cpp.default.intelliSenseMode": "linux-gcc-x86",
-    // "C_Cpp.formatting": "disabled",
-    // "uncrustify.configPath.linux": "/opt/ros/humble/lib/python3.10/site-packages/ament_uncrustify/configuration/ament_code_style.cfg",
-    // // "[cpp]": {
-    // //     "editor.defaultFormatter": "zachflower.uncrustify"
-    // // },
     "search.exclude": {
         "**/node_modules": true,
         "**/bower_components": true,
@@ -79,7 +84,9 @@
         ".devcontainer/devcontainer.json"
     ],
     "remote.extensionKind": {
-        "GitHub.copilot": ["ui"], // Run Copilot outside of the container (enable/disable)
+        "GitHub.copilot": [
+            "ui"
+        ], // Run Copilot outside of the container (enable/disable)
     },
     "python.linting.enabled": true,
     "python.linting.flake8Enabled": true,
