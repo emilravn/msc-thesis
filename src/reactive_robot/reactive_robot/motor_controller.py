@@ -11,8 +11,8 @@ class MotorController():
 
         self.motors = Robot(left=(inC, inD), right=(inA, inB), pwm=True)
 
-        self.pwmA = PWMOutputDevice(enA, active_high=True, frequency=18, initial_value=0.72)
-        self.pwmB = PWMOutputDevice(enB, active_high=True, frequency=18, initial_value=0.72)
+        self.pwmA = PWMOutputDevice(enA, active_high=True, frequency=30, initial_value=0.75)
+        self.pwmB = PWMOutputDevice(enB, active_high=True, frequency=30, initial_value=0.75)
 
     def set_speed(self, left_speed: float, right_speed: float):
         self.motors.value = (left_speed, right_speed)
