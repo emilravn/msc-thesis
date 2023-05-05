@@ -41,7 +41,7 @@ class UltrasonicPublisher(Node):  # 'MinimalPublisher' is a subclass (inherits) 
         msg.radiation_type = 0
         msg.field_of_view = 0.0
         msg.min_range = 0.0
-        msg.max_range = 100.0
+        msg.max_range = 10.0
         msg.range = us_distance
         self.get_logger().info(f'{self.back_sensor.location} publishing: {msg.range}')
         self.back_ultrasonic_publisher_.publish(msg)
@@ -54,7 +54,7 @@ class UltrasonicPublisher(Node):  # 'MinimalPublisher' is a subclass (inherits) 
         msg.radiation_type = 0
         msg.field_of_view = 0.0
         msg.min_range = 0.0
-        msg.max_range = 100.0
+        msg.max_range = 10.0
         msg.range = us_distance
         self.get_logger().info(f'{self.middle_sensor.location} sensor publishing: {msg.range}')
         self.middle_ultrasonic_publisher_.publish(msg)
@@ -67,7 +67,7 @@ class UltrasonicPublisher(Node):  # 'MinimalPublisher' is a subclass (inherits) 
         msg.radiation_type = 0
         msg.field_of_view = 0.0
         msg.min_range = 0.0
-        msg.max_range = 100.0
+        msg.max_range = 10.0
         msg.range = us_distance
         self.get_logger().info(f'{self.front_sensor.location}sensor publishing: {msg.range}')
         self.front_ultrasonic_publisher_.publish(msg)

@@ -8,14 +8,15 @@ from time import sleep
 from enum import Enum
 
 # Crop information in lab env
-CROP_ROWS = 2
-CROP_ROW_LENGTH = 93  # Plastic box cm
-WIDTH_OF_ROW = 33  # Plastic box cm
+CROP_ROWS = 4
+CROP_ROW_LENGTH = 130  # Plastic box cm
+WIDTH_OF_ROW = 78  # Plastic box cm
 CLEARANCE = 5  # distance in cm to drive to provide proper clearance from crop
 DESIRED_DIST_TO_CROP = 20  # desired distance the robot should be from the crop
 
 # Robot info
 LENGTH_OF_ROBOT = 28
+WIDTH_OF_ROBOT = 25
 
 # Distances to the algorithm
 CROP_ROW_CLEARANCE_DIST = CROP_ROW_LENGTH + DESIRED_DIST_TO_CROP + CLEARANCE*2 + WIDTH_OF_ROW
@@ -47,7 +48,7 @@ class CropFollowerNode(Node):
         self.steering_angle = 0.0
         self.kp = 0.05  # the best kp
         self.kd = 5  # the best Derivative gain
-        self.speed = 0.6
+        self.speed = 0.85
         self.prev_error = 0
 
         self.robot = MotorController()
@@ -98,9 +99,8 @@ class CropFollowerNode(Node):
         self.right_encoder_distance = 0.0
         self.total_encoder_distance = 0.0
 
-        self.create_timer(0.01, self.crop_following_algorithm)
-        # self.create_timer(0.01, self.follow_crop)
-
+        # self.create_timer(0.01, self.crop_following_algorithm)
+        self.create_timer(0.01, self.follow_crop)
 
     def back_ultrasonic_listener_callback(self, msg: Range):
         self.back_ultrasonic_distance = msg.range
@@ -131,6 +131,7 @@ class CropFollowerNode(Node):
         # Find the sensor with the lowest distance reading
         min_distance = min(distances)
         min_index = distances.index(min_distance)
+        self.get_logger().info(f'Min distance: {min_distance}')
         distance_to_crop = min_distance
         steering_angle = angles[min_index]
 
@@ -143,17 +144,16 @@ class CropFollowerNode(Node):
 
         # Calculate the steering angle
         if steering_angle == 0:
-            steering_angle = 0.00000000001
+            steering_angle = 0.001
 
         steering_angle = atan(self.kp * error + derivative) * steering_angle / abs(steering_angle)
 
         # steering_angle = max(min(steering_angle, 1.0), -1.0)
 
-        # Set the robot's steering angle
-        if self.total_encoder_distance > 1.5:
-            self.robot.set_speed(self.speed + steering_angle / (2 * pi), self.speed - steering_angle / (2 * pi))
-        else:
-            self.robot.set_speed(1, 1)
+        left_velocity = max(min(self.speed + steering_angle / (2 * pi), 1.0), -1.0)
+        right_velocity = max(min(self.speed - steering_angle / (2 * pi), 1.0), -1.0)
+
+        self.robot.set_speed(left_velocity, right_velocity)
 
         # Update the previous error
         self.prev_error = error
@@ -173,35 +173,31 @@ class CropFollowerNode(Node):
             case State.END:
                 self.state_end()
             case State.HOME:
-                self.get_logger().info(f'{self.total_encoder_distance}')
-                self.get_logger().info(f'{self.right_encoder_distance}')
-                self.get_logger().info(f'{self.left_encoder_distance}')
-
-                self.robot.set_speed(0, 0)
+                self.state_home()
 
     def state_analyze(self):
-        global total_encoder_on_arrival, num_left_turns, crop_rows_done
+        global total_encoder_on_arrival, num_left_turns, crop_rows_done, left_encoder_on_arrival
         self.get_logger().info(f'{self.state}')
-        total_distance = self.total_encoder_distance % SUM_CROP_DISTANCE
 
         # Start of crop row or start of other side of crop row
         if self.total_encoder_distance < CROP_ROW_LENGTH or self.total_encoder_distance < SECOND_ANALYZE_DIST + CROP_ROW_LENGTH and num_left_turns > 1:
             self.follow_crop()
-        # End of first crop row
+        # End of first side crop row
         elif self.total_encoder_distance >= CROP_ROW_LENGTH and num_left_turns < 1:
             total_encoder_on_arrival = self.total_encoder_distance
             crop_rows_done += 1
             self.state = State.CLEARANCE
-        # End of second crop row
-        elif self.total_encoder_distance >= SECOND_ANALYZE_DIST + CROP_ROW_LENGTH:
+        # End of second side crop row
+        elif self.total_encoder_distance >= SUM_CROP_DISTANCE - 4:
             crop_rows_done += 1
             if crop_rows_done >= CROP_ROWS:
                 self.state = State.HOME
             else:
+                left_encoder_on_arrival = self.left_encoder_distance
                 self.state = State.END
 
     def state_clearance(self):
-        global total_encoder_on_arrival, num_left_turns
+        global total_encoder_on_arrival, left_encoder_on_arrival, num_left_turns
         self.get_logger().info(f'{self.state}')
 
         # First or second clearance
@@ -211,14 +207,15 @@ class CropFollowerNode(Node):
         elif self.total_encoder_distance >= total_encoder_on_arrival + CLEARANCE_DIST:
             total_encoder_on_arrival = self.total_encoder_distance
             if num_left_turns < 1:
+                left_encoder_on_arrival = self.left_encoder_distance
                 self.state = State.LEFT
             else:
                 self.state = State.ANALYZE
 
     def state_left(self):
         global total_encoder_on_arrival, num_left_turns
-
         self.get_logger().info(f'{self.state}')
+
         self.robot.set_speed(-1, 1)
         sleep(0.88)
         total_encoder_on_arrival = self.total_encoder_distance
@@ -229,31 +226,34 @@ class CropFollowerNode(Node):
         num_left_turns += 1
 
     def state_width(self):
-        global total_encoder_on_arrival
+        global total_encoder_on_arrival, left_encoder_on_arrival
         self.get_logger().info(f'{self.state}')
 
         if self.total_encoder_distance < WIDTH_DIST + total_encoder_on_arrival:
             # self.follow_crop()
             self.robot.set_speed(1, 1)
         else:
+            left_encoder_on_arrival = self.left_encoder_distance
             self.state = State.LEFT
 
     def state_end(self):
-        global crop_rows_done, num_left_turns, total_encoder_on_arrival
-
+        global crop_rows_done, num_left_turns, total_encoder_on_arrival, left_encoder_on_arrival
         self.get_logger().info(f'{self.state}')
-        if crop_rows_done == CROP_ROWS:
-            self.state = State.CLEARANCE
-            total_encoder_on_arrival = self.total_encoder_distance
-        else:
-            crop_rows_done += 1
-            num_left_turns = 0
-            total_encoder_on_arrival = 0
-            self.robot.set_speed(-1, 1)
-            sleep(1.5)
-    
+
+        self.robot.set_speed(-1, 1)
+        sleep(1.66)
+
+        self.state = State.ANALYZE
+        self.reset_global_variables()
+
     def state_home(self):
         self.get_logger().info('Go home')
+
+    def reset_global_variables(self):
+        global crop_rows_done, num_left_turns, total_encoder_on_arrival, left_encoder_on_arrival
+        num_left_turns = 0
+        total_encoder_on_arrival = 0
+        left_encoder_on_arrival = 0
 
 
 def main(args=None):
