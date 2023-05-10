@@ -1,3 +1,4 @@
 setuptools==58.2.0
 RPi @ git+https://github.com/nosix/raspberry-gpio-emulator/@891462c30064141bca3e5d7aa7f4c46cca99a7eb
 gpiozero==1.6.2
+black==23.3.0

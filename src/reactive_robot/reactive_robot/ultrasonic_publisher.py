@@ -23,7 +23,7 @@ class UltrasonicPublisher(Node):  # 'MinimalPublisher' is a subclass (inherits) 
             Range, 'ultrasonic/front/distance', 10)
 
         # seconds
-        timer_period = 0.02
+        timer_period = 0.01
 
         # timers
         self.back_ultrasonic_publisher_timer = self.create_timer(
