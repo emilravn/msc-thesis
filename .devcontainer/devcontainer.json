@@ -27,20 +27,16 @@
 		"vscode": {
 			"extensions": [
 				"ms-python.python",
-				"althack.ament-task-provider", // provides lint tools and error lookup
+				"althack.ament-task-provider",
 				"betwo.b2-catkin-tools",
 				"DotJoshJohnson.xml",
 				"ms-azuretools.vscode-docker",
-				"GitHub.copilot",
 				"VisualStudioExptTeam.vscodeintellicode",
 				"redhat.vscode-yaml",
 				"smilerobotics.urdf",
 				"ms-iot.vscode-ros",
 				"streetsidesoftware.code-spell-checker",
 				"twxs.cmake"
-				// "ms-vscode.cpptools",
-				// "yzhang.markdown-all-in-one",
-				// "zachflower.uncrustify"
 			]
 		}
 	}
