@@ -2,12 +2,16 @@ from gpiozero import Robot, PWMOutputDevice
 from time import sleep
 
 
-class MotorController():
-    def __init__(self,
-                 inA: int = 24, inB: int = 23,
-                 inC: int = 5, inD: int = 6,
-                 enA: int = 12, enB: int = 13):
-
+class MotorController:
+    def __init__(
+        self,
+        inA: int = 24,
+        inB: int = 23,
+        inC: int = 5,
+        inD: int = 6,
+        enA: int = 12,
+        enB: int = 13,
+    ):
         self.motors = Robot(left=(inC, inD), right=(inA, inB), pwm=True)
 
         self.pwmA = PWMOutputDevice(enA, active_high=True, frequency=30, initial_value=0.75)
@@ -50,7 +54,7 @@ if __name__ == "__main__":
     print("0.4")
     sleep(3)
     robot.set_speed(0.5, 0.5)
-    print("0.5")    
+    print("0.5")
     sleep(3)
     robot.set_speed(0.6, 0.6)
     print("0.6")
