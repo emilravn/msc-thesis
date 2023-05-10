@@ -1,5 +1,4 @@
-from gpiozero import Robot, PWMOutputDevice, Motor
-import RPi.GPIO as GPIO
+from gpiozero import Robot, PWMOutputDevice
 from time import sleep
 
 
@@ -11,8 +10,8 @@ class MotorController():
 
         self.motors = Robot(left=(inC, inD), right=(inA, inB), pwm=True)
 
-        self.pwmA = PWMOutputDevice(enA, active_high=True, frequency=18, initial_value=0.72)
-        self.pwmB = PWMOutputDevice(enB, active_high=True, frequency=18, initial_value=0.72)
+        self.pwmA = PWMOutputDevice(enA, active_high=True, frequency=30, initial_value=0.75)
+        self.pwmB = PWMOutputDevice(enB, active_high=True, frequency=30, initial_value=0.75)
 
     def set_speed(self, left_speed: float, right_speed: float):
         self.motors.value = (left_speed, right_speed)
@@ -38,8 +37,33 @@ class MotorController():
 
 if __name__ == "__main__":
     robot = MotorController()
+    robot.set_speed(0.1, 0.1)
+    print("0.1")
+    sleep(3)
+    robot.set_speed(0.2, 0.2)
+    print("0.2")
+    sleep(3)
+    robot.set_speed(0.3, 0.3)
+    print("0.3")
+    sleep(3)
+    robot.set_speed(0.4, 0.4)
+    print("0.4")
+    sleep(3)
+    robot.set_speed(0.5, 0.5)
+    print("0.5")    
+    sleep(3)
+    robot.set_speed(0.6, 0.6)
+    print("0.6")
+    sleep(3)
+    robot.set_speed(0.7, 0.7)
+    print("0.7")
+    sleep(3)
+    robot.set_speed(0.8, 0.8)
+    print("0.8")
+    sleep(3)
+    robot.set_speed(0.9, 0.9)
+    print("0.9")
+    sleep(3)
     robot.set_speed(1, 1)
-    sleep(0.9)
-    robot.set_speed(0.5,0.5)
-    sleep(5)
-
+    print("1")
+    sleep(3)
