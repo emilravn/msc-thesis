@@ -27,6 +27,7 @@ setup(
             'ultrasonic_publisher = reactive_robot.ultrasonic_publisher:main',
             'motor_subscriber = reactive_robot.motor_subscriber:main',
             'crop_follower_node = reactive_robot.crop_follower_node:main',
+            'scd30_publisher = reactive_robot.scd30_publisher:main'
         ],
     },
 )
