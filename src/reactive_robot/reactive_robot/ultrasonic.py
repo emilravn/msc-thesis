@@ -2,9 +2,9 @@
 from gpiozero import DistanceSensor
 
 
-class Sonar():
+class Sonar:
     def __init__(self, location, gpio_echo, gpio_trigger):
-        self.sensor = DistanceSensor(gpio_echo, gpio_trigger)
+        self.sensor = DistanceSensor(gpio_echo, gpio_trigger, max_distance=4)
         self.location = location
 
     def get_distance(self):
@@ -12,14 +12,14 @@ class Sonar():
         return self.sensor.distance * 100
 
     def __str__(self):
-        return f'{self.location}'
+        return f"{self.location}"
 
 
 if __name__ == "__main__":
     try:
         middle_gpio_echo = 27
         middle_gpio_trigger = 17
-        us_sensor = Sonar('middle', middle_gpio_echo, middle_gpio_trigger)
+        us_sensor = Sonar("middle", middle_gpio_echo, middle_gpio_trigger)
 
         print("Measuring distance...\n")
         while True:
