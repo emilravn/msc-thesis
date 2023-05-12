@@ -58,6 +58,7 @@
         "devcontainer",
         "GPIO",
         "gpiozero",
+        "Imager",
         "ints",
         "noqa",
         "pytest",
