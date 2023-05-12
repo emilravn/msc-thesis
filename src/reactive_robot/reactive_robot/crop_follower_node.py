@@ -154,7 +154,7 @@ class CropFollowerNode(Node):
             atan(self.kp * error + derivative + integral) * steering_angle / abs(steering_angle)
         )
 
-        # Calculate the left and right velocities based on the steering angle
+# Calculate the left and right velocities based on the steering angle
         left_velocity = max(
             min(self.speed + steering_angle / (2 * pi), MAX_VELOCITY), -MAX_VELOCITY
         )
