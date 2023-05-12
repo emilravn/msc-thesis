@@ -1,7 +1,7 @@
 from gpiozero import Robot, PWMOutputDevice
 
 
-class MotorController:
+class MotorDriver:
     def __init__(
         self,
         inA: int = 24,
