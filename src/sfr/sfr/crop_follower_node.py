@@ -1,8 +1,10 @@
+#!/usr/bin/env python3
+
 import rclpy
 from rclpy.node import Node
 from sensor_msgs.msg import Range
 from std_msgs.msg import Float32
-from .motor_controller import MotorController
+from .motor_driver import MotorDriver
 from math import atan, pi
 from enum import Enum
 
@@ -57,7 +59,7 @@ class CropFollowerNode(Node):
         self.prev_error = 0
         self.integral_error = 0.0  # initialize integral error
 
-        self.robot = MotorController()
+        self.robot = MotorDriver()
 
         self.state = State.ANALYZE
 
