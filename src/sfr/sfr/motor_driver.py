@@ -16,22 +16,12 @@ class MotorDriver:
         self.pwmB = PWMOutputDevice(enB, active_high=True, frequency=30, initial_value=0.75)
 
     def set_speed(self, left_speed: float, right_speed: float):
-        """
-        Set speed for left and right motor betwen -1 and 1 where (-1, -1) full speed backwards,
-        (0, 0 is stop) and (-1, -1) is full speed forwards.
-        """
         self.motors.value = (left_speed, right_speed)
 
     def get_speed(self):
-        """
-        Return current speed for both motors as a tuple.
-        """
         return self.motors.value
 
     def stop(self):
-        """
-        Set speed to 0 and thus stop the motor.
-        """
         self.motors.stop()
 
     def drive_forward(self):
