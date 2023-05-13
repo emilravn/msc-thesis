@@ -5,18 +5,18 @@ from launch_ros.actions import Node
 def generate_launch_description():
     return LaunchDescription([
         Node(
-            package='reactive_robot',
-            executable='encoder_publisher',
+            package='sfr',
+            executable='encoder_publisher_node',
             name='encoder_publisher_node'
         ),
         Node(
-            package='reactive_robot',
-            executable='ultrasonic_publisher',
+            package='sfr',
+            executable='ultrasonic_publisher_node',
             name='ultrasonic_publisher_node'
         ),
         Node(
-            package='reactive_robot',
-            executable='scd30_publisher',
+            package='sfr',
+            executable='scd30_publisher_node',
             name='scd30_publisher_node'
         )
     ])

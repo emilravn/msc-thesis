@@ -1,17 +1,18 @@
+#!/usr/bin/env python3
+
 import rclpy
 from rclpy.node import Node
 from sensor_msgs.msg import Range
+from .encoder_driver import DistanceSensorImpl
 
-from .ultrasonic import Sonar
 
-
-class UltrasonicPublisher(Node):  # 'MinimalPublisher' is a subclass (inherits) of 'Node'
+class UltrasonicPublisher(Node):
     def __init__(self):
         super().__init__("ultrasonic_publisher")
 
-        self.back_sensor = Sonar("back", 7, 8)
-        self.middle_sensor = Sonar("middle", 27, 17)
-        self.front_sensor = Sonar("front", 15, 14)
+        self.back_sensor = DistanceSensorImpl("back", 7, 8)
+        self.middle_sensor = DistanceSensorImpl("middle", 27, 17)
+        self.front_sensor = DistanceSensorImpl("front", 15, 14)
 
         # publishers
         self.back_ultrasonic_publisher_ = self.create_publisher(

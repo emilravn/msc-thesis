@@ -1,8 +1,6 @@
 import math
 from gpiozero import RotaryEncoder
 import RPi.GPIO as GPIO
-# from time import sleep
-
 
 # Encoder/motor specs
 GEAR_RATIO = 20.4
@@ -11,21 +9,11 @@ ENCODER_CPR = 48
 COUNTS_PER_REV = ENCODER_CPR * GEAR_RATIO
 
 
-class Encoders():
-
+class Encoders:
     def __init__(self, l_a: int, l_b: int, r_a: int, r_b: int):
+        self.encoder_left = RotaryEncoder(l_a, l_b, max_steps=0, wrap=False)
 
-        self.encoder_left = RotaryEncoder(
-            l_a,
-            l_b,
-            max_steps=0,
-            wrap=False)
-
-        self.encoder_right = RotaryEncoder(
-            r_a,
-            r_b,
-            max_steps=0,
-            wrap=False)
+        self.encoder_right = RotaryEncoder(r_a, r_b, max_steps=0, wrap=False)
 
         self.encoder_left.when_rotated = self.on_rotate_left
         self.encoder_right.when_rotated = self.on_rotate_right
@@ -43,7 +31,6 @@ class Encoders():
 
         return distance / 10
 
-    # TODO: check if this is the correct way to combine encoder measurements
     def total_distance_travelled(self):
         """Return the total distance measured by both encoders."""
         return (self.distance_travelled_left + self.distance_travelled_right) / 2

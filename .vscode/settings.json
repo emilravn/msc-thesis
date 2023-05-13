@@ -2,7 +2,7 @@
     "editor.tabSize": 4,
     "[python]": {
         "editor.defaultFormatter": "ms-python.python",
-        "editor.formatOnSave": true,
+        "editor.formatOnSave": false,
         "editor.codeActionsOnSave": {
             "source.organizeImports": true
         },
