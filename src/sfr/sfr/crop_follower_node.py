@@ -132,7 +132,7 @@ class CropFollowerNode(Node):
         min_index = distances.index(min_distance)
         self.get_logger().info(f"Min distance: {min_distance}")
         distance_to_crop = min_distance
-        steering_angle = angles[min_index]
+        self.steering_angle = angles[min_index]
 
         # Calculate the error
         error = DESIRED_DIST_TO_CROP - distance_to_crop
@@ -143,25 +143,25 @@ class CropFollowerNode(Node):
 
         # Calculate the integral term
         self.integral_error += error
-        self.integral_error = max(
-            min(self.integral_error, MAX_INTEGRAL_ERROR), -MAX_INTEGRAL_ERROR
-        )
+        # self.integral_error = max(
+        #     min(self.integral_error, MAX_INTEGRAL_ERROR), -MAX_INTEGRAL_ERROR
+        # )
         integral = self.ki * self.integral_error
 
         # Calculate the steering angle
-        if steering_angle == 0:
-            steering_angle = 0.00000001
+        if self.steering_angle == 0:
+            self.steering_angle = 0.00000001
 
-        steering_angle = (
-            atan(self.kp * error + derivative + integral) * steering_angle / abs(steering_angle)
+        self.steering_angle = (
+            atan(self.kp * error + derivative + integral) * self.steering_angle / abs(self.steering_angle)
         )
 
-# Calculate the left and right velocities based on the steering angle
+        # Calculate the left and right velocities based on the steering angle
         left_velocity = max(
-            min(self.speed + steering_angle / (2 * pi), MAX_VELOCITY), -MAX_VELOCITY
+            min(self.speed + self.steering_angle / (2 * pi), MAX_VELOCITY), -MAX_VELOCITY
         )
         right_velocity = max(
-            min(self.speed - steering_angle / (2 * pi), MAX_VELOCITY), -MAX_VELOCITY
+            min(self.speed - self.steering_angle / (2 * pi), MAX_VELOCITY), -MAX_VELOCITY
         )
 
         # Update the left and right wheel speeds
