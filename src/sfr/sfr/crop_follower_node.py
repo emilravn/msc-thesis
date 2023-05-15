@@ -8,7 +8,8 @@ from .motor_driver import MotorDriver
 from math import atan, pi
 from enum import Enum
 from time import sleep
-from .camera_driver import PiCameraImage
+import time
+from .camera_driver import capture_plain_image
 
 # Crop information in lab env
 CROP_ROWS = 4
@@ -58,11 +59,13 @@ class CropFollowerNode(Node):
         self.kp = 0.2  # the best kp
         self.kd = 0.8  # the best Derivative gain
         self.ki = 0.01  # the best Integral gain
-        self.speed = 0.6
+        self.speed = 0.8
         self.prev_error = 0.0
         self.integral_error = 0.0  # initialize integral error
 
         self.robot = MotorDriver()
+
+        self.image_no = 0
 
         self.state = State.ANALYZE
 
@@ -99,10 +102,10 @@ class CropFollowerNode(Node):
         self.total_encoder_distance = 0.0
 
         self.scd30_subscription = self.create_subscription(
-            Float32, "scd30/c02_temperature_humidity", self.scd30_listener_callback, 10
+            Float32MultiArray, "scd30/c02_temperature_humidity", self.scd30_listener_callback, 10
         )
 
-        self.scd30_c02_temp_hum = []
+        self.scd30_c02_temp_hum = [0, 0, 0]
 
         # self.create_timer(0.01, self.crop_following_algorithm)
         self.create_timer(0.01, self.follow_crop)
@@ -136,7 +139,7 @@ class CropFollowerNode(Node):
             self.front_ultrasonic_distance,
             self.back_ultrasonic_distance,
         ]
-        angles = [0, pi / 18 - abs(self.steering_angle), -(pi / 18 + abs(self.steering_angle))]
+        angles = [0, pi / 10, -(pi / 10)]
 
         # Find the sensor with the lowest distance reading
         min_distance = min(distances)
@@ -159,30 +162,56 @@ class CropFollowerNode(Node):
         integral = self.ki * self.integral_error
 
         # Calculate the steering angle
-        if steering_angle == 0:
+        if steering_angle == 0.0:
             steering_angle = 0.00000001
 
         self.steering_angle = (
-            atan(self.kp * error + derivative + integral)
-            * steering_angle / abs(steering_angle)
-        )
-
-        # Calculate the left and right velocities based on the steering angle
-        left_velocity = max(
-            min(self.speed + steering_angle / (2 * pi), MAX_VELOCITY), -MAX_VELOCITY
-        )
-        right_velocity = max(
-            min(self.speed - steering_angle / (2 * pi), MAX_VELOCITY), -MAX_VELOCITY
+            atan(self.kp * error + derivative + integral) * steering_angle / abs(steering_angle)
         )
 
         # Update the left and right wheel speeds
         if self.total_encoder_distance < 1:
             self.robot.set_speed(1, 1)
+        elif self.total_encoder_distance % 50 < 1:
+            self.wait(1.0, action=self.robot.stop)
+            self.get_logger().info(
+                "Collecting environmental data: " +
+                f"CO2 = {self.scd30_c02_temp_hum[0]}, " +
+                f"temperature = {self.scd30_c02_temp_hum[1]}, " +
+                f"humidity = {self.scd30_c02_temp_hum[2]}"
+            )
+            self.get_logger().info(f"Encoder = {self.total_encoder_distance}")
+            self.robot.set_speed(1, 1)
         else:
+            # Calculate the left and right velocities based on the steering angle
+            left_velocity = max(
+                min(self.speed + self.steering_angle / (2 * pi), MAX_VELOCITY), -MAX_VELOCITY
+            )
+            right_velocity = max(
+                min(self.speed - self.steering_angle / (2 * pi), MAX_VELOCITY), -MAX_VELOCITY
+            )
             self.robot.set_speed(left_velocity, right_velocity)
 
         # Update the previous error
         self.prev_error = error
+
+    def wait(self, duration, action=None):
+        start_time = time.monotonic()
+        end_time = start_time + duration
+        while time.monotonic() < end_time:
+            if action:
+                action()
+
+    def stop_and_take_data_sample(self):
+        self.get_logger().info("Stopping..")
+        self.robot.set_speed(0, 0)
+        self.get_logger().info(
+            f"Collecting environmental data: CO2 = {self.scd30_c02_temp_hum[0]}, " +
+            f"temperature = {self.scd30_c02_temp_hum[1]}, humidity = {self.scd30_c02_temp_hum[2]}"
+        )
+        # self.get_logger().info("Capturing image..")
+        # capture_plain_image(self.image_no)
+        # self.image_no = self.image_no + 1
 
     def crop_following_algorithm(self):
         global total_encoder_on_arrival, num_left_turns, crop_rows_done
