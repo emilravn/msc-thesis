@@ -1,14 +1,13 @@
 #!/usr/bin/python
 
 import cv2
-from datetime import datetime
 import os
 from time import sleep
 
 
-class CameraSetup():
+class CameraSetup:
     def __init__(self) -> None:
-        self.camera = cv2.VideoCapture('/dev/video0', cv2.CAP_V4L)
+        self.camera = cv2.VideoCapture("/dev/video0", cv2.CAP_V4L)
 
 
 class PiCameraImage(CameraSetup):
@@ -18,14 +17,8 @@ class PiCameraImage(CameraSetup):
         self.camera.set(cv2.CAP_PROP_FRAME_WIDTH, width_resolution)
         self.camera.set(cv2.CAP_PROP_FRAME_HEIGHT, height_resolution)
 
-    def capture_plain_image(self):
-        # filename format
-        now = datetime.now()
-        date_string = now.strftime("%d-%m-%Y")
-        time_string = now.strftime("%H.%M.%S")
-
-        fname = f"image_{date_string}-{time_string}.jpg"
-
+    def capture_plain_image(self, image_name="test"):
+        fname = f"image_{image_name}.jpg"
         ret, frame = self.camera.read()
         color_corrected_image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
