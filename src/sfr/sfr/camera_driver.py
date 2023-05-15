@@ -14,7 +14,7 @@ class CameraSetup():
 class PiCameraImage(CameraSetup):
     def __init__(self, width_resolution=2591, height_resolution=1944) -> None:
         super().__init__()
-        self.image_path = "img/"
+        self.image_path = "../../images/"
         self.camera.set(cv2.CAP_PROP_FRAME_WIDTH, width_resolution)
         self.camera.set(cv2.CAP_PROP_FRAME_HEIGHT, height_resolution)
 
