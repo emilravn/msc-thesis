@@ -3,15 +3,17 @@
 import rclpy
 from rclpy.node import Node
 from sensor_msgs.msg import Range
-from std_msgs.msg import Float32
+from std_msgs.msg import Float32, Float32MultiArray
 from .motor_driver import MotorDriver
 from math import atan, pi
 from enum import Enum
 from time import sleep
+from .camera_driver import PiCameraImage
 
 # Crop information in lab env
 CROP_ROWS = 4
-CROP_ROW_LENGTH = 130  # Plastic box cm
+# CROP_ROW_LENGTH = 130  # Plastic box cm
+CROP_ROW_LENGTH = 180  # Papbox cm for experiment 1
 WIDTH_OF_ROW = 78  # Plastic box cm
 CLEARANCE = 5  # distance in cm to drive to provide proper clearance from crop
 DESIRED_DIST_TO_CROP = 30  # desired distance the robot should be from the crop
@@ -96,6 +98,12 @@ class CropFollowerNode(Node):
         self.right_encoder_distance = 0.0
         self.total_encoder_distance = 0.0
 
+        self.scd30_subscription = self.create_subscription(
+            Float32, "scd30/c02_temperature_humidity", self.scd30_listener_callback, 10
+        )
+
+        self.scd30_c02_temp_hum = []
+
         # self.create_timer(0.01, self.crop_following_algorithm)
         self.create_timer(0.01, self.follow_crop)
 
@@ -117,6 +125,9 @@ class CropFollowerNode(Node):
     def total_encoder_listener_callback(self, msg: Float32):
         self.total_encoder_distance = msg.data % SUM_CROP_DISTANCE
 
+    def scd30_listener_callback(self, msg: Float32MultiArray):
+        self.scd30_c02_temp_hum = msg.data
+
     def follow_crop(self):
         global num_left_turns, total_encoder_on_arrival
 
@@ -130,9 +141,8 @@ class CropFollowerNode(Node):
         # Find the sensor with the lowest distance reading
         min_distance = min(distances)
         min_index = distances.index(min_distance)
-        self.get_logger().info(f"Min distance: {min_distance}")
         distance_to_crop = min_distance
-        self.steering_angle = angles[min_index]
+        steering_angle = angles[min_index]
 
         # Calculate the error
         error = DESIRED_DIST_TO_CROP - distance_to_crop
@@ -143,25 +153,26 @@ class CropFollowerNode(Node):
 
         # Calculate the integral term
         self.integral_error += error
-        # self.integral_error = max(
-        #     min(self.integral_error, MAX_INTEGRAL_ERROR), -MAX_INTEGRAL_ERROR
-        # )
+        self.integral_error = max(
+            min(self.integral_error, MAX_INTEGRAL_ERROR), -MAX_INTEGRAL_ERROR
+        )
         integral = self.ki * self.integral_error
 
         # Calculate the steering angle
-        if self.steering_angle == 0:
-            self.steering_angle = 0.00000001
+        if steering_angle == 0:
+            steering_angle = 0.00000001
 
         self.steering_angle = (
-            atan(self.kp * error + derivative + integral) * self.steering_angle / abs(self.steering_angle)
+            atan(self.kp * error + derivative + integral)
+            * steering_angle / abs(steering_angle)
         )
 
         # Calculate the left and right velocities based on the steering angle
         left_velocity = max(
-            min(self.speed + self.steering_angle / (2 * pi), MAX_VELOCITY), -MAX_VELOCITY
+            min(self.speed + steering_angle / (2 * pi), MAX_VELOCITY), -MAX_VELOCITY
         )
         right_velocity = max(
-            min(self.speed - self.steering_angle / (2 * pi), MAX_VELOCITY), -MAX_VELOCITY
+            min(self.speed - steering_angle / (2 * pi), MAX_VELOCITY), -MAX_VELOCITY
         )
 
         # Update the left and right wheel speeds
