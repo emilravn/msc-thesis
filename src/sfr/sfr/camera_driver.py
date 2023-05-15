@@ -9,7 +9,7 @@ def capture_plain_image(image_name="test"):
     camera = cv2.VideoCapture("/dev/video0", cv2.CAP_V4L)
     width_resolution = 2591
     height_resolution = 1944
-    image_path = "../../images/"
+    image_path = "/home/sfr/sfr_ros2_ws/src/images/"
     camera.set(cv2.CAP_PROP_FRAME_WIDTH, width_resolution)
     camera.set(cv2.CAP_PROP_FRAME_HEIGHT, height_resolution)
 
@@ -22,7 +22,8 @@ def capture_plain_image(image_name="test"):
         print("h,w: ", frame.shape[:2])
 
         # write frame to file
-        cv2.imwrite(os.path.join(image_path, fname), color_corrected_image)
+        cv2.imwrite(os.path.join(image_path, fname), color_corrected_image) 
+        print(f"Captured image {fname}")
     else:
         print("Frame not captured")
 
@@ -40,6 +41,6 @@ def capture_plain_image(image_name="test"):
 if __name__ == "__main__":
     image_no = 0
     while True:
-        capture_plain_image()
+        capture_plain_image(image_no)
         image_no = image_no + 1
         sleep(2)
