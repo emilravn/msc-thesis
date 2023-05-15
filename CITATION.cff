@@ -1,0 +1,33 @@
+# This CITATION.cff file was generated with cffinit.
+# Visit https://bit.ly/cffinit to generate yours today!
+
+cff-version: 1.2.0
+title: >-
+  Autonomous Robot for Early Detection and Prevention of
+  Crop Diseases in Greenhouses
+message: >-
+  If you use this software, please cite it using the
+  metadata from this file.
+type: software
+authors:
+  - given-names: Henrik
+    family-names: Bellsund
+    email: hbel@itu.dk
+    affiliation: MSc. Computer Science
+  - given-names: Alexander
+    family-names: Palsson
+    email: apal@itu.dk
+    affiliation: MSc. Computer Science
+  - given-names: Emil Krogsgaard
+    family-names: Ravn
+    email: erav@itu.dk
+    affiliation: MSc. Computer Science
+repository-code: 'https://github.com/emilravn/msc-thesis'
+abstract: TBA
+keywords:
+  - autonomous
+  - agriculture
+  - robot
+  - iot
+  - raspberry pi
+license: Apache-2.0
