@@ -7,22 +7,22 @@ from time import sleep
 
 def capture_plain_image(image_name="test"):
     camera = cv2.VideoCapture("/dev/video0", cv2.CAP_V4L)
-    width_resolution = 2591
-    height_resolution = 1944
+    width_resolution = 1920
+    height_resolution = 1080
     image_path = "/home/sfr/sfr_ros2_ws/src/images/"
     camera.set(cv2.CAP_PROP_FRAME_WIDTH, width_resolution)
     camera.set(cv2.CAP_PROP_FRAME_HEIGHT, height_resolution)
 
     fname = f"image_{str(image_name)}.jpg"
     ret, frame = camera.read()
-    color_corrected_image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+    color_corrected_image = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
 
     print("ret:", ret)
     if ret:
         print("h,w: ", frame.shape[:2])
 
         # write frame to file
-        cv2.imwrite(os.path.join(image_path, fname), color_corrected_image) 
+        cv2.imwrite(os.path.join(image_path, fname), color_corrected_image)
         print(f"Captured image {fname}")
     else:
         print("Frame not captured")
