@@ -10,8 +10,8 @@ from .encoder_driver import Encoders
 # Motor encoder setup
 L_ENCODER_A = 26
 L_ENCODER_B = 16
-R_ENCODER_A = 22
-R_ENCODER_B = 25
+R_ENCODER_A = 25
+R_ENCODER_B = 22
 
 encoders = Encoders(L_ENCODER_A, L_ENCODER_B, R_ENCODER_A, R_ENCODER_B)
 
