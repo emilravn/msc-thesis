@@ -108,7 +108,8 @@ class CropFollowerNode(Node):
         self.scd30_c02_temp_hum = [0, 0, 0]
 
         # self.create_timer(0.01, self.crop_following_algorithm)
-        self.create_timer(0.01, self.follow_crop)
+        # self.create_timer(0.01, self.follow_crop)
+        self.create_timer(0.01, self.make_perfect_square_experiment)
 
     def back_ultrasonic_listener_callback(self, msg: Range):
         self.back_ultrasonic_distance = msg.range
@@ -126,7 +127,7 @@ class CropFollowerNode(Node):
         self.left_encoder_distance = msg.data
 
     def total_encoder_listener_callback(self, msg: Float32):
-        self.total_encoder_distance = msg.data % SUM_CROP_DISTANCE
+        self.total_encoder_distance = msg.data # TODO: have this when running the whole algorithm % SUM_CROP_DISTANCE
 
     def scd30_listener_callback(self, msg: Float32MultiArray):
         self.scd30_c02_temp_hum = msg.data
@@ -172,16 +173,16 @@ class CropFollowerNode(Node):
         # Update the left and right wheel speeds
         if self.total_encoder_distance < 1:
             self.robot.set_speed(1, 1)
-        elif self.total_encoder_distance % 50 < 1:
-            self.wait(1.0, action=self.robot.stop)
-            self.get_logger().info(
-                "Collecting environmental data: " +
-                f"CO2 = {self.scd30_c02_temp_hum[0]}, " +
-                f"temperature = {self.scd30_c02_temp_hum[1]}, " +
-                f"humidity = {self.scd30_c02_temp_hum[2]}"
-            )
-            self.get_logger().info(f"Encoder = {self.total_encoder_distance}")
-            self.robot.set_speed(1, 1)
+        # elif self.total_encoder_distance % 50 < 1:
+        #     self.wait(1.0, action=self.robot.stop)
+        #     self.get_logger().info(
+        #         "Collecting environmental data: " +
+        #          f"CO2 = {self.scd30_c02_temp_hum[0]}, " +
+        #          f"temperature = {self.scd30_c02_temp_hum[1]}, " +
+        #          f"humidity = {self.scd30_c02_temp_hum[2]}"
+        #     )
+        #      self.get_logger().info(f"Encoder = {self.total_encoder_distance}")
+        #      self.robot.set_speed(1, 1)
         else:
             # Calculate the left and right velocities based on the steering angle
             left_velocity = max(
@@ -212,6 +213,23 @@ class CropFollowerNode(Node):
         # self.get_logger().info("Capturing image..")
         # capture_plain_image(self.image_no)
         # self.image_no = self.image_no + 1
+
+    def make_perfect_square_experiment(self):
+        global num_left_turns, total_encoder_on_arrival, left_encoder_on_arrival
+
+        def wait(duration):
+            start_time = time.monotonic()
+            end_time = start_time + duration
+            while time.monotonic() < end_time:
+                pass
+
+        if total_encoder_on_arrival % 50 < 1 and self.left_encoder_distance > left_encoder_on_arrival - 10:
+            self.robot.set_speed(-1, 1)
+            self.get_logger().info(f"TEOA: {total_encoder_on_arrival}")
+        else:
+            self.robot.set_speed(0.8, 0.8)
+            left_encoder_on_arrival = self.left_encoder_distance
+            total_encoder_on_arrival = self.total_encoder_distance
 
     def crop_following_algorithm(self):
         global total_encoder_on_arrival, num_left_turns, crop_rows_done
