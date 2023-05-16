@@ -22,10 +22,6 @@
 
 **(Work in Progress)**
 
-
-
-
-
 # Hardware
 
 ## Bill of Materials (BOM)
@@ -36,7 +32,7 @@ The following components were used for the robot assembly:
 | -------- | ------------------------------------------------------------------------------------------ | -------- | ---------- | ------------- |
 | 1        | [Raspberry Pi 4 (4 GB)](https://www.raspberrypi.com/products/raspberry-pi-4-model-b/)      | 1        | DKK529.00 | DKK529.00     |
 | 2        | SanDisk SD Card (32 GB)                                                                    | 1        | DKK99.00  | DKK99.00      |
-| 3        | [Two wheel drive with tracks robot chassis kit (with DC motors and wheel encoders)](https://www.amazon.com/SZDoit-Absorption-Suspension-Raspberry-Education/dp/B096DHBTX3?th=1) | 1 | DKK674.61 | DKK674.61 |
+| 3        | [Two-wheel drive with tracks robot chassis kit (with DC motors and wheel encoders)](https://www.amazon.com/SZDoit-Absorption-Suspension-Raspberry-Education/dp/B096DHBTX3?th=1) | 1 | DKK674.61 | DKK674.61 |
 | 4        | [L298N Motor Driver](https://elektronik-lavpris.dk/p132566/oky3195-1-l298n-stepper-motor-driver-controller-board/) | 1 | DKK149.00 | DKK149.00 |
 | 5        | [HC-SR04 Ultrasonic Distance Sensor](https://let-elektronik.dk/ultrasonic-distance-sensor-hc-sr04) | 3 | DKK48.75 | DKK146.25 |
 | 6        | [Raspberry Pi Camera Board v1.3 (5MP, 1080p)](https://elektronik-lavpris.dk/p145103/rpi-camera-board-raspberry-pi-kamera-modul-5mpix-v13/) | 1 | DKK99.00 | DKK99.00 |
@@ -211,7 +207,7 @@ The [robot_control.sh](https://github.com/emilravn/msc-thesis/blob/206302bcd5230
 If on a Windows machine you should also install the **Bonjour Print Service** from Apple which enables you to discover it by hostname instead of IP-address only.
 
 Backup of the entire SD card is done periodically, and mostly when changes are made to the packages or the settings of the Raspberry Pi 4:
-  * **Last backup date**: **01/03/2023**.
+  * **Last backup date**: **16/05/2023**.
 
 ### Monitor CPU/memory/temperature generate statistic reports
 
