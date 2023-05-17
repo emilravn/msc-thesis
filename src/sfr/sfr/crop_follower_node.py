@@ -60,8 +60,10 @@ class CropFollowerNode(Node):
         self.kd = 0.8  # the best Derivative gain
         self.ki = 0.01  # the best Integral gain
         self.speed = 0.8
-        self.prev_error = 0.0
+        self.prev_error = 0.0 
         self.integral_error = 0.0  # initialize integral error
+        self.last_stop_cm = 0.0  # when we last stopped
+        self.should_turn_left = False
 
         self.robot = MotorDriver()
 
@@ -108,8 +110,8 @@ class CropFollowerNode(Node):
         self.scd30_c02_temp_hum = [0, 0, 0]
 
         # self.create_timer(0.01, self.crop_following_algorithm)
-        self.create_timer(0.01, self.follow_crop)
-        # self.create_timer(0.01, self.make_perfect_square_experiment)
+        # self.create_timer(0.01, self.follow_crop)
+        self.create_timer(0.01, self.make_perfect_square_experiment)
 
     def back_ultrasonic_listener_callback(self, msg: Range):
         self.back_ultrasonic_distance = msg.range
@@ -127,14 +129,14 @@ class CropFollowerNode(Node):
         self.left_encoder_distance = msg.data
 
     def total_encoder_listener_callback(self, msg: Float32):
-        self.total_encoder_distance = msg.data # TODO: have this when running the whole algorithm % SUM_CROP_DISTANCE
+        self.total_encoder_distance = (
+            msg.data
+        )  # TODO: have this when running the whole algorithm % SUM_CROP_DISTANCE
 
     def scd30_listener_callback(self, msg: Float32MultiArray):
         self.scd30_c02_temp_hum = msg.data
 
     def follow_crop(self):
-        global num_left_turns, total_encoder_on_arrival
-
         distances = [
             self.middle_ultrasonic_distance,
             self.front_ultrasonic_distance,
@@ -170,17 +172,22 @@ class CropFollowerNode(Node):
             atan(self.kp * error + derivative + integral) * steering_angle / abs(steering_angle)
         )
 
-        if self.total_encoder_distance < 1:
+        kickstart = 1
+
+        if self.total_encoder_distance < kickstart:
             self.robot.set_speed(1, 1)
-        elif self.total_encoder_distance % 32 < 1.5:
+
+        elif self.total_encoder_distance - self.last_stop_cm >= 30:
             self.get_logger().info(
-                 "Collecting environmental data: " +
-                 f"CO2 = {self.scd30_c02_temp_hum[0]}, " +
-                 f"temperature = {self.scd30_c02_temp_hum[1]}, " +
-                 f"humidity = {self.scd30_c02_temp_hum[2]}"
+                "Collecting environmental data: "
+                + f"CO2 = {self.scd30_c02_temp_hum[0]}, "
+                + f"temperature = {self.scd30_c02_temp_hum[1]}, "
+                + f"humidity = {self.scd30_c02_temp_hum[2]}"
             )
+            self.get_logger().info(f"Distance to wall at stop = {min_distance}")
+            self.get_logger().info(f"Encoder stop = {self.total_encoder_distance}")
             self.wait(5, action=self.robot.stop)
-            self.get_logger().info(f"Encoder = {self.total_encoder_distance}")
+            self.last_stop_cm = self.total_encoder_distance
             self.robot.set_speed(1, 1)
         elif self.total_encoder_distance > 193:  # stop after experiment
             self.robot.stop()
@@ -198,7 +205,7 @@ class CropFollowerNode(Node):
 
     def wait(self, duration, action=None):
         current_time = time.time()
-        while time.time() < current_time+duration:
+        while time.time() < current_time + duration:
             if action:
                 action()
 
@@ -206,8 +213,8 @@ class CropFollowerNode(Node):
         self.get_logger().info("Stopping..")
         self.robot.set_speed(0, 0)
         self.get_logger().info(
-            f"Collecting environmental data: CO2 = {self.scd30_c02_temp_hum[0]}, " +
-            f"temperature = {self.scd30_c02_temp_hum[1]}, humidity = {self.scd30_c02_temp_hum[2]}"
+            f"Collecting environmental data: CO2 = {self.scd30_c02_temp_hum[0]}, "
+            + f"temperature = {self.scd30_c02_temp_hum[1]}, humidity = {self.scd30_c02_temp_hum[2]}"
         )
         # self.get_logger().info("Capturing image..")
         # capture_plain_image(self.image_no)
@@ -216,27 +223,22 @@ class CropFollowerNode(Node):
     def make_perfect_square_experiment(self):
         global num_left_turns, total_encoder_on_arrival, left_encoder_on_arrival
 
-        def wait(duration):
-            start_time = time.monotonic()
-            end_time = start_time + duration
-            while time.monotonic() < end_time:
-                pass
+        distance_for_each_turn = 100
 
-        if self.total_encoder_distance < 1:  # kickstart
-            self.robot.set_speed(1, 1)
+        if self.should_turn_left:
+            if self.left_encoder_distance > left_encoder_on_arrival - 10:
+                self.robot.turn_left()
+            else:
+                self.should_turn_left = False
         # left turn
-        elif total_encoder_on_arrival % 50 < 1.5 and self.left_encoder_distance > left_encoder_on_arrival - 10:
-            self.robot.set_speed(-1, 1)
-        elif self.total_encoder_distance > 200:
+        elif self.total_encoder_distance >= self.last_stop_cm + distance_for_each_turn:
+            self.should_turn_left = True
+            self.last_stop_cm = self.total_encoder_distance
+            left_encoder_on_arrival = self.left_encoder_distance
+        elif self.total_encoder_distance > 400:
             self.robot.stop()
         else:  # drive forward
             self.robot.set_speed(0.8, 0.8)
-            left_encoder_on_arrival = self.left_encoder_distance
-            total_encoder_on_arrival = self.total_encoder_distance
-
-    def turn_left(self, left_encoder_checkpoint):
-        while self.left_encoder_distance > left_encoder_checkpoint - 10:
-            self.robot.set_speed(-0.9, 0.9)
 
     def crop_following_algorithm(self):
         global total_encoder_on_arrival, num_left_turns, crop_rows_done
