@@ -108,8 +108,8 @@ class CropFollowerNode(Node):
         self.scd30_c02_temp_hum = [0, 0, 0]
 
         # self.create_timer(0.01, self.crop_following_algorithm)
-        # self.create_timer(0.01, self.follow_crop)
-        self.create_timer(0.01, self.make_perfect_square_experiment)
+        self.create_timer(0.01, self.follow_crop)
+        # self.create_timer(0.01, self.make_perfect_square_experiment)
 
     def back_ultrasonic_listener_callback(self, msg: Range):
         self.back_ultrasonic_distance = msg.range
@@ -170,21 +170,22 @@ class CropFollowerNode(Node):
             atan(self.kp * error + derivative + integral) * steering_angle / abs(steering_angle)
         )
 
-        # Update the left and right wheel speeds
         if self.total_encoder_distance < 1:
             self.robot.set_speed(1, 1)
-        # elif self.total_encoder_distance % 50 < 1:
-        #     self.wait(1.0, action=self.robot.stop)
-        #     self.get_logger().info(
-        #         "Collecting environmental data: " +
-        #          f"CO2 = {self.scd30_c02_temp_hum[0]}, " +
-        #          f"temperature = {self.scd30_c02_temp_hum[1]}, " +
-        #          f"humidity = {self.scd30_c02_temp_hum[2]}"
-        #     )
-        #      self.get_logger().info(f"Encoder = {self.total_encoder_distance}")
-        #      self.robot.set_speed(1, 1)
+        elif self.total_encoder_distance % 32 < 1.5:
+            self.get_logger().info(
+                 "Collecting environmental data: " +
+                 f"CO2 = {self.scd30_c02_temp_hum[0]}, " +
+                 f"temperature = {self.scd30_c02_temp_hum[1]}, " +
+                 f"humidity = {self.scd30_c02_temp_hum[2]}"
+            )
+            self.wait(5, action=self.robot.stop)
+            self.get_logger().info(f"Encoder = {self.total_encoder_distance}")
+            self.robot.set_speed(1, 1)
+        elif self.total_encoder_distance > 193:  # stop after experiment
+            self.robot.stop()
+            self.get_logger().info("STOPPED")
         else:
-            # Calculate the left and right velocities based on the steering angle
             left_velocity = max(
                 min(self.speed + self.steering_angle / (2 * pi), MAX_VELOCITY), -MAX_VELOCITY
             )
@@ -193,13 +194,11 @@ class CropFollowerNode(Node):
             )
             self.robot.set_speed(left_velocity, right_velocity)
 
-        # Update the previous error
         self.prev_error = error
 
     def wait(self, duration, action=None):
-        start_time = time.monotonic()
-        end_time = start_time + duration
-        while time.monotonic() < end_time:
+        current_time = time.time()
+        while time.time() < current_time+duration:
             if action:
                 action()
 
@@ -223,13 +222,21 @@ class CropFollowerNode(Node):
             while time.monotonic() < end_time:
                 pass
 
-        if total_encoder_on_arrival % 50 < 1 and self.left_encoder_distance > left_encoder_on_arrival - 10:
+        if self.total_encoder_distance < 1:  # kickstart
+            self.robot.set_speed(1, 1)
+        # left turn
+        elif total_encoder_on_arrival % 50 < 1.5 and self.left_encoder_distance > left_encoder_on_arrival - 10:
             self.robot.set_speed(-1, 1)
-            self.get_logger().info(f"TEOA: {total_encoder_on_arrival}")
-        else:
+        elif self.total_encoder_distance > 200:
+            self.robot.stop()
+        else:  # drive forward
             self.robot.set_speed(0.8, 0.8)
             left_encoder_on_arrival = self.left_encoder_distance
             total_encoder_on_arrival = self.total_encoder_distance
+
+    def turn_left(self, left_encoder_checkpoint):
+        while self.left_encoder_distance > left_encoder_checkpoint - 10:
+            self.robot.set_speed(-0.9, 0.9)
 
     def crop_following_algorithm(self):
         global total_encoder_on_arrival, num_left_turns, crop_rows_done
