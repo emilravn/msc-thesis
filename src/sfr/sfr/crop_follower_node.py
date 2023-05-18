@@ -56,13 +56,14 @@ class CropFollowerNode(Node):
 
         self.steering_angle = 0.0
         self.kp = 0.2  # the best kp = 0.2
-        self.kd = 0.8  # the best Derivative gain = 0.8
+        self.kd = 0.6  # the best Derivative gain = 0.8
         self.ki = 0.01  # the best Integral gain = 0.01
-        self.speed = 0.6  # base speed
+        self.speed = 0.8  # base speed
         self.prev_error = 0.0
         self.integral_error = 0.0  # initialize integral error
         self.last_stop_cm = 0.0  # when we last stopped
         self.should_turn_left = False
+        self.kickstart = True
 
         self.robot = MotorDriver()
 
@@ -107,6 +108,9 @@ class CropFollowerNode(Node):
         )
 
         self.scd30_c02_temp_hum = [0, 0, 0]
+
+        # Let the publishers get warm before running the main algorithm
+        sleep(5)
 
         # self.create_timer(0.01, self.crop_following_algorithm)
         self.create_timer(0.01, self.follow_crop)
@@ -169,23 +173,28 @@ class CropFollowerNode(Node):
             atan(self.kp * error + derivative + integral) * steering_angle / abs(steering_angle)
         )
 
-        kickstart = 2
+        kickstart_distance_cm = 3
 
-        if self.total_encoder_distance < kickstart:
-            self.robot.set_speed(1, 1)
+        if self.kickstart:
+            if self.total_encoder_distance + self.last_stop_cm < kickstart_distance_cm:
+                self.robot.set_speed(1, 1)
+            else:
+                self.kickstart = False
 
-        # elif self.total_encoder_distance - self.last_stop_cm >= 20:
-        #     self.get_logger().info(
-        #         "Collecting environmental data: "
-        #         + f"CO2 = {self.scd30_c02_temp_hum[0]}, "
-        #         + f"temperature = {self.scd30_c02_temp_hum[1]}, "
-        #         + f"humidity = {self.scd30_c02_temp_hum[2]}"
-        #     )
-        #     self.get_logger().info(f"Distance to wall at stop = {min_distance}")
-        #     self.get_logger().info(f"Encoder stop = {self.total_encoder_distance}")
-        #     self.wait(1, action=self.robot.stop)
-        #     self.last_stop_cm = self.total_encoder_distance
-        #     self.robot.set_speed(1, 1)
+        elif self.total_encoder_distance - self.last_stop_cm >= 30:
+            self.get_logger().info(
+                "Collecting environmental data: "
+                + f"CO2 = {self.scd30_c02_temp_hum[0]}, "
+                + f"temperature = {self.scd30_c02_temp_hum[1]}, "
+                + f"humidity = {self.scd30_c02_temp_hum[2]}"
+            )
+            self.get_logger().info(f"Distance to wall at stop = {min_distance}")
+            self.get_logger().info(f"Encoder stop = {self.total_encoder_distance}")
+            self.wait(8, action=self.robot.stop)
+            self.kickstart = True
+            self.last_stop_cm = self.total_encoder_distance
+            kickstart_distance_cm = kickstart_distance_cm + self.total_encoder_distance
+
         elif self.total_encoder_distance > 180:  # stop after experiment
             self.robot.stop()
         else:
