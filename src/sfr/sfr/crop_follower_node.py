@@ -13,11 +13,10 @@ from .camera_driver import capture_plain_image
 
 # Crop information in lab env
 CROP_ROWS = 4
-# CROP_ROW_LENGTH = 130  # Plastic box cm
-CROP_ROW_LENGTH = 180  # Papbox cm for experiment 1
-WIDTH_OF_ROW = 78  # Plastic box cm
+CROP_ROW_LENGTH = 60  # Papbox cm for experiment 1
+WIDTH_OF_ROW = 39  # Plastic box cm
 CLEARANCE = 5  # distance in cm to drive to provide proper clearance from crop
-DESIRED_DIST_TO_CROP = 30  # desired distance the robot should be from the crop
+DESIRED_DIST_TO_CROP = 20  # desired distance the robot should be from the crop
 
 # Robot info
 LENGTH_OF_ROBOT = 28
@@ -60,7 +59,7 @@ class CropFollowerNode(Node):
         self.kd = 0.8  # the best Derivative gain
         self.ki = 0.01  # the best Integral gain
         self.speed = 0.8
-        self.prev_error = 0.0 
+        self.prev_error = 0.0
         self.integral_error = 0.0  # initialize integral error
         self.last_stop_cm = 0.0  # when we last stopped
         self.should_turn_left = False
@@ -109,9 +108,9 @@ class CropFollowerNode(Node):
 
         self.scd30_c02_temp_hum = [0, 0, 0]
 
-        # self.create_timer(0.01, self.crop_following_algorithm)
-        # self.create_timer(0.01, self.follow_crop)
-        self.create_timer(0.01, self.make_perfect_square_experiment)
+        #self.create_timer(0.01, self.crop_following_algorithm)
+        self.create_timer(0.01, self.follow_crop)
+        #self.create_timer(0.01, self.make_perfect_square_experiment)
 
     def back_ultrasonic_listener_callback(self, msg: Range):
         self.back_ultrasonic_distance = msg.range
@@ -129,9 +128,7 @@ class CropFollowerNode(Node):
         self.left_encoder_distance = msg.data
 
     def total_encoder_listener_callback(self, msg: Float32):
-        self.total_encoder_distance = (
-            msg.data
-        )  # TODO: have this when running the whole algorithm % SUM_CROP_DISTANCE
+        self.total_encoder_distance = msg.data % SUM_CROP_DISTANCE
 
     def scd30_listener_callback(self, msg: Float32MultiArray):
         self.scd30_c02_temp_hum = msg.data
@@ -177,7 +174,7 @@ class CropFollowerNode(Node):
         if self.total_encoder_distance < kickstart:
             self.robot.set_speed(1, 1)
 
-        elif self.total_encoder_distance - self.last_stop_cm >= 30:
+        elif self.total_encoder_distance - self.last_stop_cm >= 20:
             self.get_logger().info(
                 "Collecting environmental data: "
                 + f"CO2 = {self.scd30_c02_temp_hum[0]}, "
@@ -189,9 +186,9 @@ class CropFollowerNode(Node):
             self.wait(5, action=self.robot.stop)
             self.last_stop_cm = self.total_encoder_distance
             self.robot.set_speed(1, 1)
-        elif self.total_encoder_distance > 193:  # stop after experiment
-            self.robot.stop()
-            self.get_logger().info("STOPPED")
+        # elif self.total_encoder_distance > 193:  # stop after experiment
+        #     self.robot.stop()
+        #     self.get_logger().info("STOPPED")
         else:
             left_velocity = max(
                 min(self.speed + self.steering_angle / (2 * pi), MAX_VELOCITY), -MAX_VELOCITY
