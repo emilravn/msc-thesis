@@ -13,9 +13,9 @@ from .camera_driver import capture_plain_image
 
 # Crop information in lab env
 CROP_ROWS = 4
-CROP_ROW_LENGTH = 60  # Papbox cm for experiment 1
-WIDTH_OF_ROW = 39  # Plastic box cm
-CLEARANCE = 5  # distance in cm to drive to provide proper clearance from crop
+CROP_ROW_LENGTH = 180  # cm
+WIDTH_OF_ROW = 75  # cm
+CLEARANCE = 10  # distance in cm to drive to provide proper clearance from crop
 DESIRED_DIST_TO_CROP = 20  # desired distance the robot should be from the crop
 
 # Robot info
@@ -23,7 +23,7 @@ LENGTH_OF_ROBOT = 28
 WIDTH_OF_ROBOT = 25
 
 # Distances to the algorithm
-CROP_ROW_CLEARANCE_DIST = CROP_ROW_LENGTH + DESIRED_DIST_TO_CROP + CLEARANCE * 2 + WIDTH_OF_ROW
+CROP_ROW_CLEARANCE_DIST = CROP_ROW_LENGTH + CLEARANCE * 2 + WIDTH_OF_ROW
 CLEARANCE_DIST = LENGTH_OF_ROBOT + CLEARANCE
 SECOND_ANALYZE_DIST = CROP_ROW_CLEARANCE_DIST + CROP_ROW_LENGTH
 WIDTH_DIST = WIDTH_OF_ROW + DESIRED_DIST_TO_CROP * 3
@@ -55,10 +55,10 @@ class CropFollowerNode(Node):
         super().__init__("crop_follower_node")
 
         self.steering_angle = 0.0
-        self.kp = 0.2  # the best kp
-        self.kd = 0.8  # the best Derivative gain
-        self.ki = 0.01  # the best Integral gain
-        self.speed = 0.8
+        self.kp = 0.2  # the best kp = 0.2
+        self.kd = 0.8  # the best Derivative gain = 0.8
+        self.ki = 0.01  # the best Integral gain = 0.01
+        self.speed = 0.6  # base speed
         self.prev_error = 0.0
         self.integral_error = 0.0  # initialize integral error
         self.last_stop_cm = 0.0  # when we last stopped
@@ -108,9 +108,9 @@ class CropFollowerNode(Node):
 
         self.scd30_c02_temp_hum = [0, 0, 0]
 
-        #self.create_timer(0.01, self.crop_following_algorithm)
+        # self.create_timer(0.01, self.crop_following_algorithm)
         self.create_timer(0.01, self.follow_crop)
-        #self.create_timer(0.01, self.make_perfect_square_experiment)
+        # self.create_timer(0.01, self.make_perfect_square_experiment)
 
     def back_ultrasonic_listener_callback(self, msg: Range):
         self.back_ultrasonic_distance = msg.range
@@ -169,26 +169,25 @@ class CropFollowerNode(Node):
             atan(self.kp * error + derivative + integral) * steering_angle / abs(steering_angle)
         )
 
-        kickstart = 1
+        kickstart = 2
 
         if self.total_encoder_distance < kickstart:
             self.robot.set_speed(1, 1)
 
-        elif self.total_encoder_distance - self.last_stop_cm >= 20:
-            self.get_logger().info(
-                "Collecting environmental data: "
-                + f"CO2 = {self.scd30_c02_temp_hum[0]}, "
-                + f"temperature = {self.scd30_c02_temp_hum[1]}, "
-                + f"humidity = {self.scd30_c02_temp_hum[2]}"
-            )
-            self.get_logger().info(f"Distance to wall at stop = {min_distance}")
-            self.get_logger().info(f"Encoder stop = {self.total_encoder_distance}")
-            self.wait(5, action=self.robot.stop)
-            self.last_stop_cm = self.total_encoder_distance
-            self.robot.set_speed(1, 1)
-        # elif self.total_encoder_distance > 193:  # stop after experiment
-        #     self.robot.stop()
-        #     self.get_logger().info("STOPPED")
+        # elif self.total_encoder_distance - self.last_stop_cm >= 20:
+        #     self.get_logger().info(
+        #         "Collecting environmental data: "
+        #         + f"CO2 = {self.scd30_c02_temp_hum[0]}, "
+        #         + f"temperature = {self.scd30_c02_temp_hum[1]}, "
+        #         + f"humidity = {self.scd30_c02_temp_hum[2]}"
+        #     )
+        #     self.get_logger().info(f"Distance to wall at stop = {min_distance}")
+        #     self.get_logger().info(f"Encoder stop = {self.total_encoder_distance}")
+        #     self.wait(1, action=self.robot.stop)
+        #     self.last_stop_cm = self.total_encoder_distance
+        #     self.robot.set_speed(1, 1)
+        elif self.total_encoder_distance > 180:  # stop after experiment
+            self.robot.stop()
         else:
             left_velocity = max(
                 min(self.speed + self.steering_angle / (2 * pi), MAX_VELOCITY), -MAX_VELOCITY
@@ -207,12 +206,12 @@ class CropFollowerNode(Node):
                 action()
 
     def stop_and_take_data_sample(self):
-        self.get_logger().info("Stopping..")
+        # self.get_logger().info("Stopping..")
         self.robot.set_speed(0, 0)
-        self.get_logger().info(
-            f"Collecting environmental data: CO2 = {self.scd30_c02_temp_hum[0]}, "
-            + f"temperature = {self.scd30_c02_temp_hum[1]}, humidity = {self.scd30_c02_temp_hum[2]}"
-        )
+        # self.get_logger().info(
+        #     f"Collecting environmental data: CO2 = {self.scd30_c02_temp_hum[0]}, "
+        #     + f"temperature = {self.scd30_c02_temp_hum[1]}, humidity = {self.scd30_c02_temp_hum[2]}"
+        # )
         # self.get_logger().info("Capturing image..")
         # capture_plain_image(self.image_no)
         # self.image_no = self.image_no + 1
@@ -256,7 +255,7 @@ class CropFollowerNode(Node):
 
     def state_analyze(self):
         global total_encoder_on_arrival, num_left_turns, crop_rows_done, left_encoder_on_arrival
-        self.get_logger().info(f"{self.state}")
+        # self.get_logger().info(f"{self.state}")
 
         # Start of crop row or start of other side of crop row
         if (
@@ -270,7 +269,7 @@ class CropFollowerNode(Node):
                 if crop_rows_done >= CROP_ROWS:
                     self.state = State.HOME
                 else:
-                    self.get_logger().info(f"Total distance driven: {self.total_encoder_distance}")
+                    # self.get_logger().info(f"Total distance driven: {self.total_encoder_distance}")
                     left_encoder_on_arrival = self.left_encoder_distance
                     self.state = State.END
 
@@ -280,18 +279,18 @@ class CropFollowerNode(Node):
             crop_rows_done += 1
             self.state = State.CLEARANCE
         # End of second side crop row
-        elif self.total_encoder_distance <= SUM_CROP_DISTANCE - 20 and num_left_turns > 1:
+        elif self.total_encoder_distance <= SUM_CROP_DISTANCE - 5 and num_left_turns > 1:
             crop_rows_done += 1
             if crop_rows_done >= CROP_ROWS:
                 self.state = State.HOME
             else:
-                self.get_logger().info(f"Total distance driven: {self.total_encoder_distance}")
+                # self.get_logger().info(f"Total distance driven: {self.total_encoder_distance}")
                 left_encoder_on_arrival = self.left_encoder_distance
                 self.state = State.END
 
     def state_clearance(self):
         global total_encoder_on_arrival, left_encoder_on_arrival, num_left_turns
-        self.get_logger().info(f"{self.state}")
+        # self.get_logger().info(f"State = {self.state}")
 
         # First or second clearance
         if self.total_encoder_distance < total_encoder_on_arrival + CLEARANCE_DIST:
@@ -308,7 +307,7 @@ class CropFollowerNode(Node):
 
     def state_left(self):
         global total_encoder_on_arrival, left_encoder_on_arrival, num_left_turns
-        self.get_logger().info(f"{self.state}")
+        # self.get_logger().info(f"{self.state}")
 
         if self.left_encoder_distance > left_encoder_on_arrival - 10:
             self.robot.set_speed(-1, 1)
@@ -322,7 +321,7 @@ class CropFollowerNode(Node):
 
     def state_width(self):
         global total_encoder_on_arrival, left_encoder_on_arrival
-        self.get_logger().info(f"{self.state}")
+        # self.get_logger().info(f"{self.state}")
 
         if self.total_encoder_distance < WIDTH_DIST + total_encoder_on_arrival:
             # self.follow_crop()
@@ -333,7 +332,7 @@ class CropFollowerNode(Node):
 
     def state_end(self):
         global crop_rows_done, num_left_turns, total_encoder_on_arrival, left_encoder_on_arrival
-        self.get_logger().info(f"{self.state}")
+        # self.get_logger().info(f"{self.state}")
 
         if self.left_encoder_distance > left_encoder_on_arrival - 30:
             self.robot.set_speed(-1, 1)
@@ -342,7 +341,7 @@ class CropFollowerNode(Node):
             self.state = State.ANALYZE
 
     def state_home(self):
-        self.get_logger().info("Go home")
+        # self.get_logger().info("Go home")
         self.robot.set_speed(0, 0)
 
     def reset_global_variables(self):

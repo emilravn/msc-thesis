@@ -26,9 +26,9 @@ class SCD30Publisher(Node):
             m = self.scd30.read_measurement()
             if m is not None:
                 msg.data = m
-                self.get_logger().info(
-                    f"SCD30 publishing: CO2: {m[0]:.2f}ppm, " +
-                    f"temp: {m[1]:.2f}'C, humidity: {m[2]:.2f}%")
+                # self.get_logger().info(
+                #     f"SCD30 publishing: CO2: {m[0]:.2f}ppm, " +
+                #     f"temp: {m[1]:.2f}'C, humidity: {m[2]:.2f}%")
                 self.scd30_publisher_.publish(msg)
 
 

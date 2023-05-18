@@ -41,21 +41,21 @@ class EncoderPublisher(Node):
         distance_left_encoder = encoders.distance_travelled_left
         msg = Float32()
         msg.data = distance_left_encoder
-        self.get_logger().info(f"left encoder publishing: {msg.data}mm")
+        # self.get_logger().info(f"left encoder publishing: {msg.data}mm")
         self.left_encoder_publisher_.publish(msg)
 
     def right_encoder_callback(self):
         distance_right_encoder = encoders.distance_travelled_right
         msg = Float32()
         msg.data = distance_right_encoder
-        self.get_logger().info(f"right encoder publishing: {msg.data}mm")
+        # self.get_logger().info(f"right encoder publishing: {msg.data}mm")
         self.right_encoder_publisher_.publish(msg)
 
     def total_encoder_callback(self):
         distance_covered = encoders.total_distance_travelled()
         msg = Float32()
         msg.data = distance_covered
-        self.get_logger().info(f"total encoder publishing: {msg.data}mm")
+        # self.get_logger().info(f"total encoder publishing: {msg.data}mm")
         self.total_encoder_publisher_.publish(msg)
 
 

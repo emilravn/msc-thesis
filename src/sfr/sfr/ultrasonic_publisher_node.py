@@ -26,7 +26,7 @@ class UltrasonicPublisher(Node):
         )
 
         # seconds
-        timer_period = 0.01
+        timer_period = 0.06
 
         # timers
         self.back_ultrasonic_publisher_timer = self.create_timer(
@@ -49,7 +49,7 @@ class UltrasonicPublisher(Node):
         msg.min_range = 0.0
         msg.max_range = 10.0
         msg.range = us_distance
-        self.get_logger().info(f"{self.back_sensor.location} publishing: {msg.range}")
+        # self.get_logger().info(f"{self.back_sensor.location} publishing: {msg.range}")
         self.back_ultrasonic_publisher_.publish(msg)
 
     def middle_sensor_callback(self):
@@ -62,7 +62,7 @@ class UltrasonicPublisher(Node):
         msg.min_range = 0.0
         msg.max_range = 10.0
         msg.range = us_distance
-        self.get_logger().info(f"{self.middle_sensor.location} sensor publishing: {msg.range}")
+        # self.get_logger().info(f"{self.middle_sensor.location} sensor publishing: {msg.range}")
         self.middle_ultrasonic_publisher_.publish(msg)
 
     def front_sensor_callback(self):
@@ -75,7 +75,7 @@ class UltrasonicPublisher(Node):
         msg.min_range = 0.0
         msg.max_range = 10.0
         msg.range = us_distance
-        self.get_logger().info(f"{self.front_sensor.location}sensor publishing: {msg.range}")
+        # self.get_logger().info(f"{self.front_sensor.location}sensor publishing: {msg.range}")
         self.front_ultrasonic_publisher_.publish(msg)
 
 

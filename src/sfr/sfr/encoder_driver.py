@@ -4,7 +4,7 @@ import RPi.GPIO as GPIO
 
 # Encoder/motor specs
 GEAR_RATIO = 20.4
-BELT_DIAMETER = 180  # millimeter
+BELT_DIAMETER = 175   # millimeter
 ENCODER_CPR = 48
 COUNTS_PER_REV = ENCODER_CPR * GEAR_RATIO
 
