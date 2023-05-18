@@ -98,8 +98,8 @@ The L298N motor driver pins were connected to the Raspberry Pi 4 as follows:
 | --------- | ---------- | -------- |
 | VCC | 6.4V - 8.4V | 6.4 - 8.4V |
 | GND | GND | GND |
-| IN1 & IN2 | 16 & 18  | GPIO 23 & GPIO 24 |
-| IN3 & IN4 | 29 & 31 | GPIO 5 & GPIO 6 |
+| INA & INB | 16 & 18  | GPIO 24 & GPIO 23 |
+| INC & IND | 29 & 31 | GPIO 5 & GPIO 6 |
 | ENA | 32 | GPIO 12 PWM0 |
 | ENB | 33 | GPIO 13 PWM1 |
 
@@ -112,8 +112,8 @@ The left and right encoder from the DC motors were connected to the Raspberry Pi
 
 | Encoder (Right) | GPIO.BOARD | GPIO.BCM |
 | --------- | ---------- | -------- |
-| Output A | 15 | GPIO 22 |
-| Output B | 22 | GPIO 25 |
+| Output A | 22 | GPIO 25 |
+| Output B | 15 | GPIO 22 |
 
 The SCD30 sensor was connected to the Raspberry Pi 4 as follows:
 
@@ -198,6 +198,8 @@ The credentials during the thesis for the robot:
 | `sfr.local`  | `sfr.local` | `sFRsuperduper@.`    | `SFR`         | `sFRsuperduper@`        |
 
 * To enable SSH connection via hostname you should install **avahi-daemon** on the Raspberry Pi 4. 
+
+* Disable SPI with `raspi-config` as we are not interfacing with a microcontroller. Otherwise none of the functionality won't work!
 
 ## Workflow
 
