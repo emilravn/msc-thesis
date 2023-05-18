@@ -64,6 +64,7 @@ class CropFollowerNode(Node):
         self.last_stop_cm = 0.0  # when we last stopped
         self.should_turn_left = False
         self.kickstart = True
+        self.left_encoder_on_arrival = 0.0
 
         self.robot = MotorDriver()
 
@@ -110,11 +111,11 @@ class CropFollowerNode(Node):
         self.scd30_c02_temp_hum = [0, 0, 0]
 
         # Let the publishers get warm before running the main algorithm
-        sleep(5)
+        sleep(2)
 
         # self.create_timer(0.01, self.crop_following_algorithm)
-        self.create_timer(0.01, self.follow_crop)
-        # self.create_timer(0.01, self.make_perfect_square_experiment)
+        # self.create_timer(0.01, self.follow_crop)
+        self.create_timer(0.01, self.make_perfect_square_experiment)
 
     def back_ultrasonic_listener_callback(self, msg: Range):
         self.back_ultrasonic_distance = msg.range
@@ -226,24 +227,31 @@ class CropFollowerNode(Node):
         # self.image_no = self.image_no + 1
 
     def make_perfect_square_experiment(self):
-        global num_left_turns, total_encoder_on_arrival, left_encoder_on_arrival
+        distance_to_travel_before_turn = 130
+        number_of_corners = 4
+        total_distance_to_travel = distance_to_travel_before_turn * number_of_corners
 
-        distance_for_each_turn = 100
-
+        # Should turn left
         if self.should_turn_left:
-            if self.left_encoder_distance > left_encoder_on_arrival - 10:
+            left_turn_target_distance = 12
+            if (
+                self.left_encoder_distance
+                > self.left_encoder_on_arrival - left_turn_target_distance
+            ):
                 self.robot.turn_left()
             else:
                 self.should_turn_left = False
-        # left turn
-        elif self.total_encoder_distance >= self.last_stop_cm + distance_for_each_turn:
+        # Travelled one row before turning left
+        elif self.total_encoder_distance >= self.last_stop_cm + distance_to_travel_before_turn:
             self.should_turn_left = True
             self.last_stop_cm = self.total_encoder_distance
-            left_encoder_on_arrival = self.left_encoder_distance
-        elif self.total_encoder_distance > 400:
+            self.left_encoder_on_arrival = self.left_encoder_distance
+        # If the robot has travelled the full distance around the square
+        elif self.total_encoder_distance > total_distance_to_travel:
             self.robot.stop()
-        else:  # drive forward
-            self.robot.set_speed(0.8, 0.8)
+        # If the robot should drive straight
+        else:
+            self.robot.set_speed(1, 1)
 
     def crop_following_algorithm(self):
         global total_encoder_on_arrival, num_left_turns, crop_rows_done
@@ -364,7 +372,6 @@ def main(args=None):
     rclpy.init(args=args)
     crop_follower_node = CropFollowerNode()
     rclpy.spin(crop_follower_node)
-    sleep(1)
     crop_follower_node.destroy_node()
     rclpy.shutdown()
 
