@@ -26,7 +26,7 @@ class UltrasonicPublisher(Node):
             Range, "ultrasonic/front/distance", 10
         )
 
-        timer_seconds = 0.01
+        timer_seconds = 0.06
 
         # timers
         self.back_ultrasonic_publisher_timer = self.create_timer(
