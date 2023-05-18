@@ -3,28 +3,30 @@
 import rclpy
 from rclpy.node import Node
 from sensor_msgs.msg import Range
-from std_msgs.msg import Float32
+from std_msgs.msg import Float32, Float32MultiArray
 from .motor_driver import MotorDriver
 from math import atan, pi
 from enum import Enum
+from time import sleep
+import time
 
 # Crop information in lab env
 CROP_ROWS = 4
-CROP_ROW_LENGTH = 130  # Plastic box cm
-WIDTH_OF_ROW = 78  # Plastic box cm
-CLEARANCE = 5  # distance in cm to drive to provide proper clearance from crop
-DESIRED_DIST_TO_CROP = 20  # desired distance the robot should be from the crop
+CROP_ROW_LENGTH_CM = 185
+WIDTH_OF_ROW_CM = 75
+CLEARANCE_CM = 15  # distance to drive to provide proper clearance from crop
+DESIRED_DIST_TO_CROP_CM = 20  # desired distance the robot should be from the crop
 
 # Robot info
 LENGTH_OF_ROBOT = 28
 WIDTH_OF_ROBOT = 25
 
 # Distances to the algorithm
-CROP_ROW_CLEARANCE_DIST = CROP_ROW_LENGTH + DESIRED_DIST_TO_CROP + CLEARANCE * 2 + WIDTH_OF_ROW
-CLEARANCE_DIST = LENGTH_OF_ROBOT + CLEARANCE
-SECOND_ANALYZE_DIST = CROP_ROW_CLEARANCE_DIST + CROP_ROW_LENGTH
-WIDTH_DIST = WIDTH_OF_ROW + DESIRED_DIST_TO_CROP * 3
-SUM_CROP_DISTANCE = SECOND_ANALYZE_DIST + CROP_ROW_LENGTH
+CROP_ROW_CLEARANCE_DIST = CROP_ROW_LENGTH_CM + CLEARANCE_CM * 2 + WIDTH_OF_ROW_CM
+CLEARANCE_DIST = LENGTH_OF_ROBOT + CLEARANCE_CM
+SECOND_ANALYZE_DIST = CROP_ROW_CLEARANCE_DIST + CROP_ROW_LENGTH_CM - 30
+WIDTH_DIST = WIDTH_OF_ROW_CM + DESIRED_DIST_TO_CROP_CM * 3
+SUM_CROP_DISTANCE = SECOND_ANALYZE_DIST + CROP_ROW_LENGTH_CM
 
 # PID controller
 MAX_VELOCITY = 1
@@ -48,16 +50,23 @@ class State(Enum):
 
 
 class CropFollowerNode(Node):
-    def __init__(self) -> None:
+    def __init__(self, debug=False) -> None:
         super().__init__("crop_follower_node")
 
         self.steering_angle = 0.0
-        self.kp = 0.07  # the best kp
-        self.kd = 0.1  # the best Derivative gain
-        self.ki = 0.001  # the best Integral gain
-        self.speed = 0.8
-        self.prev_error = 0
+        self.kp = 0.2  # the best kp = 0.2
+        self.kd = 0.6  # the best Derivative gain = 0.8
+        self.ki = 0.01  # the best Integral gain = 0.01
+        self.speed = 0.8  # base speed
+        self.prev_error = 0.0
         self.integral_error = 0.0  # initialize integral error
+        self.last_stop_cm = 0.0  # when we last stopped
+        self.should_turn_left = False
+        self.kickstart = True
+        self.left_encoder_on_arrival = 0.0
+        self.left_turn_target_distance = 12
+
+        self.debug = debug
 
         self.robot = MotorDriver()
 
@@ -95,8 +104,18 @@ class CropFollowerNode(Node):
         self.right_encoder_distance = 0.0
         self.total_encoder_distance = 0.0
 
+        self.scd30_subscription = self.create_subscription(
+            Float32MultiArray, "scd30/c02_temperature_humidity", self.scd30_listener_callback, 10
+        )
+
+        self.scd30_c02_temp_hum = [0, 0, 0]
+
+        # Let the publishers get warm before running the main algorithm
+        sleep(2)
+
         self.create_timer(0.01, self.crop_following_algorithm)
         # self.create_timer(0.01, self.follow_crop)
+        # self.create_timer(0.01, self.make_perfect_square_experiment)
 
     def back_ultrasonic_listener_callback(self, msg: Range):
         self.back_ultrasonic_distance = msg.range
@@ -116,25 +135,25 @@ class CropFollowerNode(Node):
     def total_encoder_listener_callback(self, msg: Float32):
         self.total_encoder_distance = msg.data % SUM_CROP_DISTANCE
 
-    def follow_crop(self):
-        global num_left_turns, total_encoder_on_arrival
+    def scd30_listener_callback(self, msg: Float32MultiArray):
+        self.scd30_c02_temp_hum = msg.data
 
+    def follow_crop(self):
         distances = [
             self.middle_ultrasonic_distance,
             self.front_ultrasonic_distance,
             self.back_ultrasonic_distance,
         ]
-        angles = [0, pi / 18 - abs(self.steering_angle), -(pi / 18 + abs(self.steering_angle))]
+        angles = [0, pi / 10, -(pi / 10)]
 
         # Find the sensor with the lowest distance reading
         min_distance = min(distances)
         min_index = distances.index(min_distance)
-        self.get_logger().info(f"Min distance: {min_distance}")
         distance_to_crop = min_distance
         steering_angle = angles[min_index]
 
         # Calculate the error
-        error = DESIRED_DIST_TO_CROP - distance_to_crop
+        error = DESIRED_DIST_TO_CROP_CM - distance_to_crop
 
         # Calculate the derivative term
         delta_error = error - self.prev_error
@@ -148,29 +167,92 @@ class CropFollowerNode(Node):
         integral = self.ki * self.integral_error
 
         # Calculate the steering angle
-        if steering_angle == 0:
-            steering_angle = 0.001
+        if steering_angle == 0.0:
+            steering_angle = 0.00000001
 
-        steering_angle = (
+        self.steering_angle = (
             atan(self.kp * error + derivative + integral) * steering_angle / abs(steering_angle)
         )
 
-        # Calculate the left and right velocities based on the steering angle
-        left_velocity = max(
-            min(self.speed + steering_angle / (2 * pi), MAX_VELOCITY), -MAX_VELOCITY
-        )
-        right_velocity = max(
-            min(self.speed - steering_angle / (2 * pi), MAX_VELOCITY), -MAX_VELOCITY
-        )
+        kickstart_distance_cm = 3
 
-        # Update the left and right wheel speeds
-        if self.total_encoder_distance < 2:
-            self.robot.set_speed(1, 1)
+        if self.kickstart:
+            if self.total_encoder_distance + self.last_stop_cm < kickstart_distance_cm:
+                self.robot.set_speed(1, 1)
+            else:
+                self.kickstart = False
+
+        # USED FOR EXPERIMENT
+        # elif self.total_encoder_distance - self.last_stop_cm >= 30:
+        #     self.get_logger().info(
+        #         "Collecting environmental data: "
+        #         + f"CO2 = {self.scd30_c02_temp_hum[0]}, "
+        #         + f"temperature = {self.scd30_c02_temp_hum[1]}, "
+        #         + f"humidity = {self.scd30_c02_temp_hum[2]}"
+        #     )
+        #     self.get_logger().info(f"Distance to wall at stop = {min_distance}")
+        #     self.get_logger().info(f"Encoder stop = {self.total_encoder_distance}")
+        #     self.wait(8, action=self.robot.stop)
+        #     self.kickstart = True
+        #     self.last_stop_cm = self.total_encoder_distance
+        #     kickstart_distance_cm = kickstart_distance_cm + self.total_encoder_distance
+
+        # elif self.total_encoder_distance > 180:  # stop after experiment
+        #     self.robot.stop()
+
         else:
+            left_velocity = max(
+                min(self.speed + self.steering_angle / (2 * pi), MAX_VELOCITY), -MAX_VELOCITY
+            )
+            right_velocity = max(
+                min(self.speed - self.steering_angle / (2 * pi), MAX_VELOCITY), -MAX_VELOCITY
+            )
             self.robot.set_speed(left_velocity, right_velocity)
 
-        # Update the previous error
         self.prev_error = error
+
+    def wait(self, duration, action=None):
+        current_time = time.time()
+        while time.time() < current_time + duration:
+            if action:
+                action()
+
+    def stop_and_take_data_sample(self):
+        self.robot.set_speed(0, 0)
+        if self.debug:
+            self.get_logger().info(
+                f"Collecting environmental data: CO2 = {self.scd30_c02_temp_hum[0]},"
+                + f"Temperature = {self.scd30_c02_temp_hum[1]},"
+                + f"humidity = {self.scd30_c02_temp_hum[2]}"
+            )
+        if self.debug:
+            self.get_logger().info("Capturing image..")
+
+    def make_perfect_square_experiment(self):
+        distance_to_travel_before_turn = 130
+        number_of_corners = 4
+        total_distance_to_travel = distance_to_travel_before_turn * number_of_corners
+
+        # Should turn left
+        if self.should_turn_left:
+            if (
+                self.left_encoder_distance
+                > self.left_encoder_on_arrival - self.left_turn_target_distance
+            ):
+                self.robot.turn_left()
+            else:
+                self.should_turn_left = False
+        # Travelled one row before turning left
+        elif self.total_encoder_distance >= self.last_stop_cm + distance_to_travel_before_turn:
+            self.should_turn_left = True
+            self.last_stop_cm = self.total_encoder_distance
+            self.left_encoder_on_arrival = self.left_encoder_distance
+        # If the robot has travelled the full distance around the square
+        elif self.total_encoder_distance > total_distance_to_travel:
+            self.robot.stop()
+        # If the robot should drive straight
+        else:
+            self.robot.set_speed(1, 1)
 
     def crop_following_algorithm(self):
         global total_encoder_on_arrival, num_left_turns, crop_rows_done
@@ -191,11 +273,12 @@ class CropFollowerNode(Node):
 
     def state_analyze(self):
         global total_encoder_on_arrival, num_left_turns, crop_rows_done, left_encoder_on_arrival
-        self.get_logger().info(f"{self.state}")
+        if self.debug:
+            self.get_logger().info(f"{self.state}")
 
         # Start of crop row or start of other side of crop row
         if (
-            self.total_encoder_distance < CROP_ROW_LENGTH
+            self.total_encoder_distance < CROP_ROW_LENGTH_CM
             or self.total_encoder_distance < SUM_CROP_DISTANCE
             and num_left_turns == 2
         ):
@@ -205,28 +288,34 @@ class CropFollowerNode(Node):
                 if crop_rows_done >= CROP_ROWS:
                     self.state = State.HOME
                 else:
-                    self.get_logger().info(f"Total distance driven: {self.total_encoder_distance}")
+                    if self.debug:
+                        self.get_logger().info(
+                            f"Total distance driven: {self.total_encoder_distance}"
+                        )
                     left_encoder_on_arrival = self.left_encoder_distance
                     self.state = State.END
 
         # End of first side crop row
-        elif self.total_encoder_distance >= CROP_ROW_LENGTH and num_left_turns < 1:
+        elif self.total_encoder_distance >= CROP_ROW_LENGTH_CM and num_left_turns < 1:
             total_encoder_on_arrival = self.total_encoder_distance
             crop_rows_done += 1
             self.state = State.CLEARANCE
         # End of second side crop row
-        elif self.total_encoder_distance <= SUM_CROP_DISTANCE - 20 and num_left_turns > 1:
+        elif self.total_encoder_distance <= SUM_CROP_DISTANCE - 5 and num_left_turns > 1:
             crop_rows_done += 1
             if crop_rows_done >= CROP_ROWS:
                 self.state = State.HOME
             else:
-                self.get_logger().info(f"Total distance driven: {self.total_encoder_distance}")
+                if self.debug:
+                    self.get_logger().info(f"Total distance driven: {self.total_encoder_distance}")
                 left_encoder_on_arrival = self.left_encoder_distance
                 self.state = State.END
 
     def state_clearance(self):
         global total_encoder_on_arrival, left_encoder_on_arrival, num_left_turns
-        self.get_logger().info(f"{self.state}")
+
+        if self.debug:
+            self.get_logger().info(f"State = {self.state}")
 
         # First or second clearance
         if self.total_encoder_distance < total_encoder_on_arrival + CLEARANCE_DIST:
@@ -243,9 +332,11 @@ class CropFollowerNode(Node):
 
     def state_left(self):
         global total_encoder_on_arrival, left_encoder_on_arrival, num_left_turns
-        self.get_logger().info(f"{self.state}")
 
-        if self.left_encoder_distance > left_encoder_on_arrival - 10:
+        if self.debug:
+            self.get_logger().info(f"{self.state}")
+
+        if self.left_encoder_distance > left_encoder_on_arrival - self.left_turn_target_distance:
             self.robot.set_speed(-1, 1)
         else:
             total_encoder_on_arrival = self.total_encoder_distance
@@ -257,7 +348,8 @@ class CropFollowerNode(Node):
 
     def state_width(self):
         global total_encoder_on_arrival, left_encoder_on_arrival
-        self.get_logger().info(f"{self.state}")
+        if self.debug:
+            self.get_logger().info(f"{self.state}")
 
         if self.total_encoder_distance < WIDTH_DIST + total_encoder_on_arrival:
             # self.follow_crop()
@@ -268,7 +360,8 @@ class CropFollowerNode(Node):
 
     def state_end(self):
         global crop_rows_done, num_left_turns, total_encoder_on_arrival, left_encoder_on_arrival
-        self.get_logger().info(f"{self.state}")
+        if self.debug:
+            self.get_logger().info(f"{self.state}")
 
         if self.left_encoder_distance > left_encoder_on_arrival - 30:
             self.robot.set_speed(-1, 1)
@@ -277,7 +370,8 @@ class CropFollowerNode(Node):
             self.state = State.ANALYZE
 
     def state_home(self):
-        self.get_logger().info("Go home")
+        if self.debug:
+            self.get_logger().info("Go home")
         self.robot.set_speed(0, 0)
 
     def reset_global_variables(self):

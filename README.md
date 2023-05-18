@@ -218,7 +218,3 @@ Install **RPi-Monitor** with `apt` and it will serve up an interactive webpage a
 ## Documentation from used libraries
 
 * [gpiozero](https://gpiozero.readthedocs.io/en/stable/index.html): library for controlling various GPIO elements.
-
-# Known issues
-
-* 1.7-2V to motor issue: https://forums.raspberrypi.com/viewtopic.php?t=200297 

@@ -3,7 +3,7 @@ from gpiozero import DistanceSensor
 
 class DistanceSensorImpl:
     def __init__(self, location, gpio_echo, gpio_trigger):
-        self.sensor = DistanceSensor(gpio_echo, gpio_trigger)
+        self.sensor = DistanceSensor(gpio_echo, gpio_trigger, max_distance=4)
         self.location = location
 
     def get_distance(self):
