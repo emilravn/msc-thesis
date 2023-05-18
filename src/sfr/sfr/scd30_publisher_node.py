@@ -7,8 +7,10 @@ from scd30_i2c import SCD30
 
 
 class SCD30Publisher(Node):
-    def __init__(self):
-        super().__init__('scd30_publisher')
+    def __init__(self, debug=False):
+        super().__init__('SCD30_publisher')
+
+        self.debug = debug
 
         self.scd30 = SCD30()
         self.scd30.set_measurement_interval(2)
@@ -26,9 +28,10 @@ class SCD30Publisher(Node):
             m = self.scd30.read_measurement()
             if m is not None:
                 msg.data = m
-                # self.get_logger().info(
-                #     f"SCD30 publishing: CO2: {m[0]:.2f}ppm, " +
-                #     f"temp: {m[1]:.2f}'C, humidity: {m[2]:.2f}%")
+                if self.debug:
+                    self.get_logger().info(
+                        f"SCD30 publishing: CO2: {m[0]:.2f}ppm, " +
+                        f"temp: {m[1]:.2f}'C, humidity: {m[2]:.2f}%")
                 self.scd30_publisher_.publish(msg)
 
 
