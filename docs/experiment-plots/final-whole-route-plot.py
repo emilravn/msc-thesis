@@ -3,14 +3,24 @@ import matplotlib.pyplot as plt
 from bag_decoder import BagFileParser
 
 if __name__ == "__main__":
-    cases = ['case1', 'case2', 'case3', 'case4', 'case5', 'case6', 'case7', 'case8', 'case9', 'case10']
+    cases = [
+        "case1",
+        "case2",
+        "case3",
+        "case4",
+        "case5",
+        "case6",
+        "case7",
+        "case8",
+        "case9",
+        "case10",
+    ]
     output_folder = "4-final-whole-route"
 
     # Store all data for summary plot
     summary_data = []
 
     for case in cases:
-
         plt.figure()
 
         bag_file = "../experiments/4-final-whole-route/{}/{}_0.db3".format(case, case)
@@ -35,7 +45,9 @@ if __name__ == "__main__":
         back_distances = [back[i][1].range for i in range(len(back))]
 
         front_distances_interp = np.interp(encoder_timestamps, front_timestamps, front_distances)
-        middle_distances_interp = np.interp(encoder_timestamps, middle_timestamps, middle_distances)
+        middle_distances_interp = np.interp(
+            encoder_timestamps, middle_timestamps, middle_distances
+        )
         back_distances_interp = np.interp(encoder_timestamps, back_timestamps, back_distances)
 
         encoder_filtered = []
@@ -45,18 +57,18 @@ if __name__ == "__main__":
             front_value = front_distances_interp[i]
             middle_value = middle_distances_interp[i]
             back_value = back_distances_interp[i]
-            
+
             if encoder_value != 0:
                 encoder_filtered.append(encoder_value)
                 min_distance = min(front_value, middle_value, back_value)
                 min_distances_filtered.append(min_distance)
 
         plt.plot(encoder_filtered, min_distances_filtered)
-        plt.xlabel('Distance driven (cm)')
-        plt.ylabel('Distance to wall (cm)')
-        plt.title(f'Final whole route experiment for {case}')
+        plt.xlabel("Distance driven (cm)")
+        plt.ylabel("Distance to wall (cm)")
+        plt.title(f"Final whole route experiment for {case}")
 
-        plt.savefig(f'{output_folder}/{case}_plot.png')
+        plt.savefig(f"{output_folder}/{case}_plot.png")
 
         plt.close()
 
@@ -70,20 +82,22 @@ if __name__ == "__main__":
         plt.plot(encoder_filtered, min_distances_filtered, label=cases[i])
 
     # Add acceptance range lines
-    plt.axhline(y=18, color='black', linestyle='--', label='Lower/Upper acceptance limit (18/22 cm)')
-    plt.axhline(y=22, color='black', linestyle='--')
+    plt.axhline(
+        y=18, color="black", linestyle="--", label="Lower/Upper acceptance limit (18/22 cm)"
+    )
+    plt.axhline(y=22, color="black", linestyle="--")
 
-    plt.axvline(x=5, linestyle='--', label='Analyze')
-    plt.axvline(x=180, linestyle='--', label='Clearance')
-    plt.axvline(x=200, linestyle='--', label='Left turn')
-    plt.axvline(x=210, linestyle='--', label='Width')
+    plt.axvline(x=5, linestyle="--", label="Analyze")
+    plt.axvline(x=180, linestyle="--", label="Clearance")
+    plt.axvline(x=200, linestyle="--", label="Left turn")
+    plt.axvline(x=210, linestyle="--", label="Width")
 
-    plt.xlabel('Distance driven (cm)')
-    plt.ylabel('Distance to wall (cm)')
-    plt.title('Final whole route experiment')
+    plt.xlabel("Distance driven (cm)")
+    plt.ylabel("Distance to wall (cm)")
+    plt.title("Final whole route experiment")
 
     plt.ylim(0, 70)  # Adjust the y-axis to range from 0 to 50
 
-    plt.legend(loc='upper left')  # Legend moved to outside of plot
+    plt.legend(loc="upper left")  # Legend moved to outside of plot
 
-    plt.savefig(f'{output_folder}/summary_plot.png')
+    plt.savefig(f"{output_folder}/summary_plot.png")
