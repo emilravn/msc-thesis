@@ -19,10 +19,10 @@ def individual_summary_boxplot(
 
 def summary_boxplot(all_min_distances, output_destination_folder, fig_width=10, fig_height=6):
     plt.figure(figsize=(fig_width, fig_height))
-    plt.boxplot(all_min_distances)
-    plt.xlabel("All Cases")
-    plt.ylabel("Distance to wall")
-    plt.title("Summary Box Plot")
+    plt.boxplot(all_min_distances, showfliers=False)
+    plt.xlabel('All Cases')
+    plt.ylabel('Distance to wall')
+    plt.title('Summary Box Plot')
     plt.tight_layout()
 
     plt.savefig(f"{output_destination_folder}/summary_box_plot.png")
