@@ -17,7 +17,7 @@ def individual_summary_boxplot(summary_data_list, output_destination_folder, fig
 
 def summary_boxplot(all_min_distances, output_destination_folder, fig_width=10, fig_height=6):
     plt.figure(figsize=(fig_width, fig_height))
-    plt.boxplot(all_min_distances)
+    plt.boxplot(all_min_distances, showfliers=False)
     plt.xlabel('All Cases')
     plt.ylabel('Distance to wall')
     plt.title('Summary Box Plot')
