@@ -52,8 +52,8 @@ if __name__ == "__main__":
                 min_distances_filtered.append(min_distance)
 
         plt.plot(encoder_filtered, min_distances_filtered)
-        plt.xlabel('Distance driven')
-        plt.ylabel('Distance to wall')
+        plt.xlabel('Distance driven (cm)')
+        plt.ylabel('Distance to wall (cm)')
         plt.title(f'Straight line with stops experiment for {case}')
 
         plt.savefig(f'{output_folder}/{case}_plot.png')
@@ -64,7 +64,7 @@ if __name__ == "__main__":
         summary_data.append((encoder_filtered, min_distances_filtered))
 
     # Summary plot
-    plt.figure(figsize=(14, 7))
+    plt.figure(figsize=(14, 10))
 
     for i, (encoder_filtered, min_distances_filtered) in enumerate(summary_data):
         plt.plot(encoder_filtered, min_distances_filtered, label=cases[i])
@@ -73,9 +73,12 @@ if __name__ == "__main__":
     plt.axhline(y=18, color='black', linestyle='--', label='Lower/Upper acceptance limit (18/22 cm)')
     plt.axhline(y=22, color='black', linestyle='--')
 
-    plt.xlabel('Distance driven')
-    plt.ylabel('Distance to wall')
+    plt.xlabel('Distance driven (cm)')
+    plt.ylabel('Distance to wall (cm)')
     plt.title('Straight line with stops experiment')
+
+    plt.ylim(0, 70)  # Adjust the y-axis to range from 0 to 50
+
     plt.legend(loc='upper left')  # Legend moved to outside of plot
 
     plt.savefig(f'{output_folder}/summary_plot.png')
