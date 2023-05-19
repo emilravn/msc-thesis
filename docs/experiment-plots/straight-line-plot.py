@@ -125,4 +125,4 @@ if __name__ == "__main__":
     # Individual cases box plot
     individual_summary_boxplot(summary_data, output_folder)
     # Summarizing box plot
-    summary_boxplot(all_min_distances, output_folder, fig_height=10)
+    summary_boxplot(all_min_distances, output_folder)

@@ -2,6 +2,32 @@ import numpy as np
 import matplotlib.pyplot as plt
 from bag_decoder import BagFileParser
 
+
+def individual_summary_boxplot(
+    summary_data_list, output_destination_folder, fig_width=10, fig_height=6
+):
+    plt.figure(figsize=(fig_width, fig_height))
+    # data[1] is ultrasonic distance
+    plt.boxplot([data[1] for data in summary_data_list], labels=cases)
+    plt.xlabel("Case")
+    plt.ylabel("Distance to wall")
+    plt.title("Summary box plot")
+    plt.tight_layout()
+
+    plt.savefig(f"{output_destination_folder}/individual_box_plots.png")
+
+
+def summary_boxplot(all_min_distances, output_destination_folder, fig_width=10, fig_height=6):
+    plt.figure(figsize=(fig_width, fig_height))
+    plt.boxplot(all_min_distances, showfliers=False)
+    plt.xlabel('All Cases')
+    plt.ylabel('Distance to wall')
+    plt.title('Summary Box Plot')
+    plt.tight_layout()
+
+    plt.savefig(f"{output_destination_folder}/summary_box_plot.png")
+
+
 if __name__ == "__main__":
     cases = [
         "case1",
@@ -19,6 +45,7 @@ if __name__ == "__main__":
 
     # Store all data for summary plot
     summary_data = []
+    all_min_distances = []
 
     for case in cases:
         plt.figure()
@@ -74,6 +101,7 @@ if __name__ == "__main__":
 
         # Store data for summary plot
         summary_data.append((encoder_filtered, min_distances_filtered))
+        all_min_distances.extend(min_distances_filtered)
 
     # Summary plot
     plt.figure(figsize=(14, 10))
@@ -96,3 +124,8 @@ if __name__ == "__main__":
     plt.legend(loc="upper left")  # Legend moved to outside of plot
 
     plt.savefig(f"{output_folder}/summary_plot.png")
+
+    # Individual cases box plot
+    individual_summary_boxplot(summary_data, output_folder)
+    # Summarizing box plot
+    summary_boxplot(all_min_distances, output_folder)
