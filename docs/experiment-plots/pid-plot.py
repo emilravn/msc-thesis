@@ -3,50 +3,70 @@ import matplotlib.pyplot as plt
 from bag_decoder import BagFileParser
 
 
-def individual_summary_boxplot(summary_data_list, output_destination_folder, cases, fig_width=10, fig_height=6):
+def individual_summary_boxplot(
+    summary_data_list, output_destination_folder, pid_values, fig_width=10, fig_height=6
+):
     plt.figure(figsize=(fig_width, fig_height))
     # data[1] is ultrasonic distance
-    plt.boxplot([data[1] for data in summary_data_list], labels=cases)
-    plt.xlabel("Case")
-    plt.ylabel("Distance to wall")
-    plt.title("Individual summary box plot")
+    plt.boxplot([data[1] for data in summary_data_list], labels=pid_values)
+    plt.xlabel("KD value")
+    plt.ylabel("Distance to wall (cm)")
+    plt.title("Individual summary box plot for ki values")
     plt.tight_layout()
 
     plt.savefig(f"{output_destination_folder}/individual_box_plots.png")
 
+
 def summary_boxplot(all_min_distances, output_destination_folder, fig_width=10, fig_height=6):
     plt.figure(figsize=(fig_width, fig_height))
     plt.boxplot(all_min_distances, showfliers=False)
-    plt.xlabel('All cases')
-    plt.ylabel('Distance to wall')
-    plt.title('Summary box plot')
+    plt.xlabel("All cases")
+    plt.ylabel("Distance to wall (cm)")
+    plt.title("Summary Box Plot for ki values")
     plt.tight_layout()
 
     plt.savefig(f"{output_destination_folder}/summary_box_plot.png")
 
-def main():
+
+def summary_plot(summary_data, plot_titles, output_folder):
+    plt.figure(figsize=(14, 10))
+
+    for i, (encoder_filtered, min_distances_filtered) in enumerate(summary_data):
+        plt.plot(encoder_filtered, min_distances_filtered, label=plot_titles[i])
+
+    plt.xlabel("Distance driven (cm)")
+    plt.ylabel("Distance to wall (cm)")
+    plt.title("PID experiment for ki values")
+    plt.legend(loc="upper left")  # Legend moved to outside of plot
+
+    plt.savefig(f"{output_folder}/summary_plot.png")
+
+
+def plot_pid_experiments():
     cases = [
-        "case1",
-        "case2",
-        "case3",
-        "case4",
-        "case5",
-        "case6",
-        "case7",
-        "case8",
-        "case9",
-        "case10",
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9",
     ]
-    output_folder = "1-straight-line"
+    plot_kp_titles = ["0.005", "0.01", "0.02", "0.05", "0.07", "0.1", "0.2", "0.3", "0.15"]
+    plot_kd_titles = ["0.1", "0.05", "0.01", "0.2", "0.4", "0.8", "1.0", "2.0", "5.0"]
+    plot_ki_titles = ["0.4", "0.2", "0.1", "0.05", "0.01", "0.001"]
+    output_folder = "pid-plots/ki"
 
     # Store all data for summary plot
     summary_data = []
     all_min_distances = []
 
-    for case in cases:
+    for case, pid_value in zip(cases, plot_ki_titles):
         plt.figure()
 
-        bag_file = "../experiments/1-straight-line/{}/{}_0.db3".format(case, case)
+        bag_file = f"../experiments/pid-experiments/ki/{case}/{case}_0.db3"
 
         parser = BagFileParser(bag_file)
 
@@ -89,7 +109,7 @@ def main():
         plt.plot(encoder_filtered, min_distances_filtered)
         plt.xlabel("Distance driven (cm)")
         plt.ylabel("Distance to wall (cm)")
-        plt.title(f"Straight line experiment for {case}")
+        plt.title(f"PID experiment for ki value: {pid_value}")
 
         plt.savefig(f"{output_folder}/{case}_plot.png")
 
@@ -100,29 +120,14 @@ def main():
         all_min_distances.extend(min_distances_filtered)
 
     # Summary plot
-    plt.figure(figsize=(14, 10))
-
-    for i, (encoder_filtered, min_distances_filtered) in enumerate(summary_data):
-        plt.plot(encoder_filtered, min_distances_filtered, label=cases[i])
-
-    # Add acceptance range lines
-    plt.axhline(
-        y=18, color="black", linestyle="--", label="Lower/Upper acceptance limit (18/22 cm)"
-    )
-    plt.axhline(y=22, color="black", linestyle="--")
-
-    plt.xlabel("Distance driven (cm)")
-    plt.ylabel("Distance to wall (cm)")
-    plt.title("Straight line experiment")
-    plt.legend(loc="lower right")  # Legend moved to outside of plot
-
-    plt.savefig(f"{output_folder}/summary_plot.png")
+    summary_plot(summary_data, plot_ki_titles, output_folder)
 
     # Individual cases box plot
-    individual_summary_boxplot(summary_data, output_folder, cases)
+    individual_summary_boxplot(summary_data, output_folder, plot_ki_titles)
+
     # Summarizing box plot
     summary_boxplot(all_min_distances, output_folder)
 
 
 if __name__ == "__main__":
-    main()
+    plot_pid_experiments()

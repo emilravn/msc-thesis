@@ -16,8 +16,8 @@ class BagFileParser:
             name_of: get_message(type_of) for id_of, name_of, type_of in topics_data
         }
 
-    def __del__(self):
-        self.conn.close()
+    # def __del__(self):
+    #     self.conn.close()
 
     # Return [(timestamp0, message0), (timestamp1, message1), ...]
     def get_messages(self, topic_name):
