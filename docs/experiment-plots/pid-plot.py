@@ -42,6 +42,10 @@ def summary_plot(summary_data, plot_titles, output_folder):
     plt.savefig(f"{output_folder}/summary_plot.png")
 
 
+def summary_statistics():
+    pass  # TODO: write this!!!!!!!! (ask ChatGPT :):) )
+
+
 def plot_pid_experiments():
     cases = [
         "1",
