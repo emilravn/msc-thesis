@@ -61,7 +61,7 @@ case $action in
         elif [ "$2" == 'util' ]
         then
             echo "Synchronizing util to robot"
-            rsync -av -e ssh --exclude='.git*' /workspaces/msc-thesis/util $USER@$IP:/home/$USER/util 1> /dev/null 2> /tmp/err;
+            rsync -av -e ssh --exclude='.git*' /workspaces/msc-thesis/util/ $USER@$IP:/home/$USER/util 1> /dev/null 2> /tmp/err;
         elif [ "$#" -eq 3 ] # Synchronizes $2 to target path $3
         then
             echo "Synchronizing $2 to $3... This might take a while." # Synchronize one file
