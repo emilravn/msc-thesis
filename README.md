@@ -22,10 +22,6 @@
 
 **(Work in Progress)**
 
-
-
-
-
 # Hardware
 
 ## Bill of Materials (BOM)
@@ -36,7 +32,7 @@ The following components were used for the robot assembly:
 | -------- | ------------------------------------------------------------------------------------------ | -------- | ---------- | ------------- |
 | 1        | [Raspberry Pi 4 (4 GB)](https://www.raspberrypi.com/products/raspberry-pi-4-model-b/)      | 1        | DKK529.00 | DKK529.00     |
 | 2        | SanDisk SD Card (32 GB)                                                                    | 1        | DKK99.00  | DKK99.00      |
-| 3        | [Two wheel drive with tracks robot chassis kit (with DC motors and wheel encoders)](https://www.amazon.com/SZDoit-Absorption-Suspension-Raspberry-Education/dp/B096DHBTX3?th=1) | 1 | DKK674.61 | DKK674.61 |
+| 3        | [Two-wheel drive with tracks robot chassis kit (with DC motors and wheel encoders)](https://www.amazon.com/SZDoit-Absorption-Suspension-Raspberry-Education/dp/B096DHBTX3?th=1) | 1 | DKK674.61 | DKK674.61 |
 | 4        | [L298N Motor Driver](https://elektronik-lavpris.dk/p132566/oky3195-1-l298n-stepper-motor-driver-controller-board/) | 1 | DKK149.00 | DKK149.00 |
 | 5        | [HC-SR04 Ultrasonic Distance Sensor](https://let-elektronik.dk/ultrasonic-distance-sensor-hc-sr04) | 3 | DKK48.75 | DKK146.25 |
 | 6        | [Raspberry Pi Camera Board v1.3 (5MP, 1080p)](https://elektronik-lavpris.dk/p145103/rpi-camera-board-raspberry-pi-kamera-modul-5mpix-v13/) | 1 | DKK99.00 | DKK99.00 |
@@ -102,8 +98,8 @@ The L298N motor driver pins were connected to the Raspberry Pi 4 as follows:
 | --------- | ---------- | -------- |
 | VCC | 6.4V - 8.4V | 6.4 - 8.4V |
 | GND | GND | GND |
-| IN1 & IN2 | 16 & 18  | GPIO 23 & GPIO 24 |
-| IN3 & IN4 | 29 & 31 | GPIO 5 & GPIO 6 |
+| INA & INB | 16 & 18  | GPIO 24 & GPIO 23 |
+| INC & IND | 29 & 31 | GPIO 5 & GPIO 6 |
 | ENA | 32 | GPIO 12 PWM0 |
 | ENB | 33 | GPIO 13 PWM1 |
 
@@ -116,8 +112,8 @@ The left and right encoder from the DC motors were connected to the Raspberry Pi
 
 | Encoder (Right) | GPIO.BOARD | GPIO.BCM |
 | --------- | ---------- | -------- |
-| Output A | 15 | GPIO 22 |
-| Output B | 22 | GPIO 25 |
+| Output A | 22 | GPIO 25 |
+| Output B | 15 | GPIO 22 |
 
 The SCD30 sensor was connected to the Raspberry Pi 4 as follows:
 
@@ -203,6 +199,8 @@ The credentials during the thesis for the robot:
 
 * To enable SSH connection via hostname you should install **avahi-daemon** on the Raspberry Pi 4. 
 
+* Disable SPI with `raspi-config` as we are not interfacing with a microcontroller. Otherwise none of the functionality won't work!
+
 ## Workflow
 
 The [robot_control.sh](https://github.com/emilravn/msc-thesis/blob/206302bcd523076b146bc1268338234476f9b547/robot_control.sh) script is used to transferring code and to communicate with the robot at ease.
@@ -211,7 +209,7 @@ The [robot_control.sh](https://github.com/emilravn/msc-thesis/blob/206302bcd5230
 If on a Windows machine you should also install the **Bonjour Print Service** from Apple which enables you to discover it by hostname instead of IP-address only.
 
 Backup of the entire SD card is done periodically, and mostly when changes are made to the packages or the settings of the Raspberry Pi 4:
-  * **Last backup date**: **01/03/2023**.
+  * **Last backup date**: **16/05/2023**.
 
 ### Monitor CPU/memory/temperature generate statistic reports
 
@@ -220,7 +218,3 @@ Install **RPi-Monitor** with `apt` and it will serve up an interactive webpage a
 ## Documentation from used libraries
 
 * [gpiozero](https://gpiozero.readthedocs.io/en/stable/index.html): library for controlling various GPIO elements.
-
-# Known issues
-
-* 1.7-2V to motor issue: https://forums.raspberrypi.com/viewtopic.php?t=200297 

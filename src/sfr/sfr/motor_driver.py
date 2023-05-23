@@ -18,9 +18,6 @@ class MotorDriver:
     def set_speed(self, left_speed: float, right_speed: float):
         self.motors.value = (left_speed, right_speed)
 
-    def get_speed(self):
-        return self.motors.value
-
     def stop(self):
         self.motors.stop()
 
