@@ -3,10 +3,20 @@ import matplotlib.pyplot as plt
 from bag_decoder import BagFileParser
 
 
+plot_kp_titles = ["0.005", "0.01", "0.02", "0.05", "0.07", "0.1", "0.2", "0.3", "0.15"]
+plot_kd_titles = ["0.1", "0.05", "0.01", "0.2", "0.4", "0.8", "1.0", "2.0", "5.0"]
+plot_ki_titles = ["0.4", "0.2", "0.1", "0.05", "0.01", "0.001"]
+output_folder = "pid-plots/ki"
+
+
 def individual_summary_boxplot(
-    summary_data_list, output_destination_folder, pid_values, fig_width=10, fig_height=6
+    summary_data_list, output_destination_folder, pid_values, fig_width=None, fig_height=None
 ):
-    plt.figure(figsize=(fig_width, fig_height))
+    if fig_width and fig_height:
+        plt.figure(figsize=(fig_width, fig_height))
+    else:
+        plt.figure()
+
     # data[1] is ultrasonic distance
     plt.boxplot([data[1] for data in summary_data_list], labels=pid_values)
     plt.xlabel("KD value")
@@ -17,8 +27,12 @@ def individual_summary_boxplot(
     plt.savefig(f"{output_destination_folder}/individual_box_plots.png")
 
 
-def summary_boxplot(all_min_distances, output_destination_folder, fig_width=10, fig_height=6):
-    plt.figure(figsize=(fig_width, fig_height))
+def summary_boxplot(all_min_distances, output_destination_folder, fig_width=None, fig_height=None):
+    if fig_width and fig_height:
+        plt.figure(figsize=(fig_width, fig_height))
+    else:
+        plt.figure()
+
     plt.boxplot(all_min_distances, showfliers=False)
     plt.xlabel("All cases")
     plt.ylabel("Distance to wall (cm)")
@@ -28,8 +42,11 @@ def summary_boxplot(all_min_distances, output_destination_folder, fig_width=10, 
     plt.savefig(f"{output_destination_folder}/summary_box_plot.png")
 
 
-def summary_plot(summary_data, plot_titles, output_folder):
-    plt.figure(figsize=(14, 10))
+def summary_plot(summary_data, plot_titles, output_folder, fig_width=None, fig_height=None):
+    if fig_width and fig_height:
+        plt.figure(figsize=(fig_width, fig_height))
+    else:
+        plt.figure()
 
     for i, (encoder_filtered, min_distances_filtered) in enumerate(summary_data):
         plt.plot(encoder_filtered, min_distances_filtered, label=plot_titles[i])
@@ -46,7 +63,7 @@ def summary_statistics():
     pass  # TODO: write this!!!!!!!! (ask ChatGPT :):) )
 
 
-def plot_pid_experiments():
+def plot_pid_experiments(plot_titles, output_folder):
     cases = [
         "1",
         "2",
@@ -58,16 +75,12 @@ def plot_pid_experiments():
         "8",
         "9",
     ]
-    plot_kp_titles = ["0.005", "0.01", "0.02", "0.05", "0.07", "0.1", "0.2", "0.3", "0.15"]
-    plot_kd_titles = ["0.1", "0.05", "0.01", "0.2", "0.4", "0.8", "1.0", "2.0", "5.0"]
-    plot_ki_titles = ["0.4", "0.2", "0.1", "0.05", "0.01", "0.001"]
-    output_folder = "pid-plots/ki"
 
     # Store all data for summary plot
     summary_data = []
     all_min_distances = []
 
-    for case, pid_value in zip(cases, plot_ki_titles):
+    for case, pid_value in zip(cases, plot_titles):
         plt.figure()
 
         bag_file = f"../experiments/pid-experiments/ki/{case}/{case}_0.db3"
@@ -110,10 +123,10 @@ def plot_pid_experiments():
                 min_distance = min(front_value, middle_value, back_value)
                 min_distances_filtered.append(min_distance)
 
+        # plots for individual cases
         plt.plot(encoder_filtered, min_distances_filtered)
         plt.xlabel("Distance driven (cm)")
         plt.ylabel("Distance to wall (cm)")
-        plt.ylim(top=50)
         plt.title(f"PID experiment for ki value: {pid_value}")
 
         plt.savefig(f"{output_folder}/{case}_plot.png")
@@ -124,15 +137,17 @@ def plot_pid_experiments():
         summary_data.append((encoder_filtered, min_distances_filtered))
         all_min_distances.extend(min_distances_filtered)
 
-    # Summary plot
-    summary_plot(summary_data, plot_ki_titles, output_folder)
+    # Summary plot of all cases
+    summary_plot(summary_data, plot_titles, output_folder)
 
     # Individual cases box plot
-    individual_summary_boxplot(summary_data, output_folder, plot_ki_titles)
+    individual_summary_boxplot(summary_data, output_folder, plot_titles)
 
-    # Summarizing box plot
+    # Summarizing box plot of all cases
     summary_boxplot(all_min_distances, output_folder)
 
 
 if __name__ == "__main__":
-    plot_pid_experiments()
+    plot_pid_experiments(plot_kp_titles, "pid-plots/kp")
+    plot_pid_experiments(plot_kd_titles, "pid-plots/kd")
+    plot_pid_experiments(plot_ki_titles, "pid-plots/ki")
