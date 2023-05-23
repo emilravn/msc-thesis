@@ -63,7 +63,7 @@ def summary_statistics():
     pass  # TODO: write this!!!!!!!! (ask ChatGPT :):) )
 
 
-def plot_pid_experiments(plot_titles, output_folder):
+def plot_pid_experiments(gain_constant, plot_titles, output_folder):
     cases = [
         "1",
         "2",
@@ -83,7 +83,7 @@ def plot_pid_experiments(plot_titles, output_folder):
     for case, pid_value in zip(cases, plot_titles):
         plt.figure()
 
-        bag_file = f"../experiments/pid-experiments/ki/{case}/{case}_0.db3"
+        bag_file = f"../experiments/pid-experiments/{gain_constant}/{case}/{case}_0.db3"
 
         parser = BagFileParser(bag_file)
 
@@ -148,6 +148,14 @@ def plot_pid_experiments(plot_titles, output_folder):
 
 
 if __name__ == "__main__":
-    plot_pid_experiments(plot_kp_titles, "pid-plots/kp")
-    plot_pid_experiments(plot_kd_titles, "pid-plots/kd")
-    plot_pid_experiments(plot_ki_titles, "pid-plots/ki")
+    print("Plotting kp ...")
+    plot_pid_experiments("kp", plot_kp_titles, "pid-plots/kp")
+    print("kp done!")
+
+    print("Plotting kd ...")
+    plot_pid_experiments("kd", plot_kd_titles, "pid-plots/kd")
+    print("kd done!")
+
+    print("Plotting ki ...")
+    plot_pid_experiments("ki", plot_ki_titles, "pid-plots/ki")
+    print("ki done!")
