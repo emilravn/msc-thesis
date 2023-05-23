@@ -113,6 +113,7 @@ def plot_pid_experiments():
         plt.plot(encoder_filtered, min_distances_filtered)
         plt.xlabel("Distance driven (cm)")
         plt.ylabel("Distance to wall (cm)")
+        plt.ylim(top=50)
         plt.title(f"PID experiment for ki value: {pid_value}")
 
         plt.savefig(f"{output_folder}/{case}_plot.png")
