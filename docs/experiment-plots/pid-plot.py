@@ -53,6 +53,7 @@ def summary_plot(summary_data, plot_titles, output_folder, fig_width=None, fig_h
 
     plt.xlabel("Distance driven (cm)")
     plt.ylabel("Distance to wall (cm)")
+    plt.ylim(top=40)
     plt.title("PID experiment for ki values")
     plt.legend(loc="upper left")  # Legend moved to outside of plot
 
