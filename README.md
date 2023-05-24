@@ -208,9 +208,6 @@ The [robot_control.sh](https://github.com/emilravn/msc-thesis/blob/206302bcd5230
 
 If on a Windows machine you should also install the **Bonjour Print Service** from Apple which enables you to discover it by hostname instead of IP-address only.
 
-Backup of the entire SD card is done periodically, and mostly when changes are made to the packages or the settings of the Raspberry Pi 4:
-  * **Last backup date**: **16/05/2023**.
-
 ### Monitor CPU/memory/temperature generate statistic reports
 
 Install **RPi-Monitor** with `apt` and it will serve up an interactive webpage at `localhost:8888` when on the same network as the Raspberry Pi 4.
