@@ -1,3 +1,0 @@
-You should enable python 3.9.0 in the current shell (pyenv)
-
-pyenv shell 3.9.0
