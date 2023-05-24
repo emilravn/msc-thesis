@@ -74,14 +74,14 @@ def write_dict_to_file(stats_dict, filename):
             file.write(f"{key}: {value}\n")
 
 
-def summary_statistics(gain_constant, data_list):
+def summary_statistics(gain_constant, case_nr, data_list):
     # ensure list is made of floats
     data_list = list(map(float, data_list))
     data_list.sort()
 
     # calculate statistics
     stats_dict = {}
-    stats_dict['gain_constant'] = f'{gain_constant}'
+    stats_dict['gain_constant_case'] = f'{gain_constant}_{case_nr}'
 
     stats_dict['mean'] = statistics.mean(data_list)
     stats_dict['median'] = statistics.median(data_list)
@@ -182,6 +182,12 @@ def plot_pid_experiments(gain_constant, plot_titles, output_folder):
         summary_data.append((encoder_filtered, min_distances_filtered))
         all_min_distances.extend(min_distances_filtered)
 
+        # descriptive statistics for each case
+        print(f"Computing statistics for {gain_constant} case {case} ...")
+        distance_stats_dict = summary_statistics(gain_constant, case, min_distances_filtered)
+        descriptive_stats_filename = output_folder+f"/{gain_constant}_{case}_stats.txt"
+        write_dict_to_file(distance_stats_dict, descriptive_stats_filename)
+
     # Summary plot of all cases
     summary_plot(gain_constant, summary_data, plot_titles, output_folder)
 
@@ -190,11 +196,6 @@ def plot_pid_experiments(gain_constant, plot_titles, output_folder):
 
     # Summarizing box plot of all cases
     summary_boxplot(gain_constant, all_min_distances, output_folder)
-
-    # descriptive statistics
-    distance_stats_dict = summary_statistics(gain_constant, min_distances_filtered)
-    descriptive_stats_filename = output_folder+f"/{gain_constant}_descriptive_statistics.txt"
-    write_dict_to_file(distance_stats_dict, descriptive_stats_filename)
 
 
 if __name__ == "__main__":
