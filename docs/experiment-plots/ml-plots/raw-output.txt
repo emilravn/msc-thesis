@@ -1,0 +1,30 @@
+Process:
+    Stdout: None
+    Stderr: None
+    Runtime: 3.208 second(s)
+    Exit code: 0.0
+
+CPU (seconds):
+    User time: 1.073
+    System time: 0.179
+    Total time: 1.252
+
+Memory (bytes):
+    Maximum: 74438901.76
+    Maximum per process: 74438901.76
+
+Disk:
+    Read (bytes): 18513.92
+    Write (bytes): 40.96
+    Total (bytes): 18554.88
+    Read (chars): 4197974.88
+    Write (chars): 350.15
+    Total (chars): 4198325.03
+
+Time series:
+    Sampling milliseconds: array([  55.98      ,   92.28282828,  127.46      , ..., 3203.6       ,
+       3236.875     , 3275.        ])
+    CPU (percentages): array([  0.        , 100.24343434, 100.198     , ...,  99.54222222,
+        95.0625    , 105.3       ])
+    Memory (bytes): array([ 6798909.44      ,  7933496.88888889,  8618885.12      , ...,
+       32193285.68888889, 10971648.        ,        0.        ])
