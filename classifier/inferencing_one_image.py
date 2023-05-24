@@ -3,13 +3,18 @@ from PIL import Image
 import numpy as np
 import time
 import os
+import random
 
+# Find a random image in the dataset
+images_folder = "./images/plantvillage/"
+tomato_class_folder = str(np.random.choice(os.listdir(images_folder)) + "/")
+full_path = os.path.join(images_folder, tomato_class_folder)
 
-data_folder = "./images/plantvillage/"
-
-model_path = "./model/efficient_test1_data10.tflite"
+# Load the labels
 label_path = "./model/labels.txt"
 
+# Load the model
+model_path = "./model/efficient_test1_data10.tflite"
 interpreter = Interpreter(model_path)
 print("Model Loaded Successfully.")
 
@@ -21,12 +26,11 @@ output_details = interpreter.get_output_details()
 _, height, width, _ = interpreter.get_input_details()[0]["shape"]
 print("Image Shape (", width, ",", height, ")")
 
-# Test the model on random input data.
+# List a random file for the model to predict
+file_list = os.listdir(full_path)
+random_image = random.choice(file_list)
 
-# Find the file name of a random image in the data_folder
-file_name = np.random.choice(os.listdir(data_folder))
-
-image = Image.open(data_folder + "tomato_early_blight.jpg").convert("RGB").resize((width, height))
+image = Image.open(full_path + random_image).convert("RGB").resize((width, height))
 image = np.array(image)
 processed_image = np.expand_dims(image, axis=0).astype(np.float32)
 
