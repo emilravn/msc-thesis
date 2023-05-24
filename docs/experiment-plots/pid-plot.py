@@ -1,4 +1,6 @@
 import numpy as np
+from scipy import stats
+import statistics
 import matplotlib.pyplot as plt
 from bag_decoder import BagFileParser
 
@@ -10,7 +12,8 @@ output_folder = "pid-plots/ki"
 
 
 def individual_summary_boxplot(
-    summary_data_list, output_destination_folder, pid_values, fig_width=None, fig_height=None
+    gain_constant, summary_data_list, output_destination_folder, pid_values,
+    fig_width=None, fig_height=None
 ):
     if fig_width and fig_height:
         plt.figure(figsize=(fig_width, fig_height))
@@ -19,15 +22,18 @@ def individual_summary_boxplot(
 
     # data[1] is ultrasonic distance
     plt.boxplot([data[1] for data in summary_data_list], labels=pid_values)
-    plt.xlabel("KD value")
+    plt.xlabel(f"{gain_constant} value")
     plt.ylabel("Distance to wall (cm)")
-    plt.title("Individual summary box plot for ki values")
+    plt.title(f"Individual summary box plot for {gain_constant} values")
     plt.tight_layout()
 
     plt.savefig(f"{output_destination_folder}/individual_box_plots.png")
 
 
-def summary_boxplot(all_min_distances, output_destination_folder, fig_width=None, fig_height=None):
+def summary_boxplot(
+        gain_constant, all_min_distances, output_destination_folder,
+        fig_width=None, fig_height=None
+):
     if fig_width and fig_height:
         plt.figure(figsize=(fig_width, fig_height))
     else:
@@ -36,13 +42,15 @@ def summary_boxplot(all_min_distances, output_destination_folder, fig_width=None
     plt.boxplot(all_min_distances, showfliers=False)
     plt.xlabel("All cases")
     plt.ylabel("Distance to wall (cm)")
-    plt.title("Summary Box Plot for ki values")
+    plt.title(f"Summary Box Plot for {gain_constant} values")
     plt.tight_layout()
 
     plt.savefig(f"{output_destination_folder}/summary_box_plot.png")
 
 
-def summary_plot(summary_data, plot_titles, output_folder, fig_width=None, fig_height=None):
+def summary_plot(
+        gain_constant, summary_data, plot_titles, output_folder, fig_width=None, fig_height=None
+):
     if fig_width and fig_height:
         plt.figure(figsize=(fig_width, fig_height))
     else:
@@ -54,14 +62,50 @@ def summary_plot(summary_data, plot_titles, output_folder, fig_width=None, fig_h
     plt.xlabel("Distance driven (cm)")
     plt.ylabel("Distance to wall (cm)")
     plt.ylim(top=40)
-    plt.title("PID experiment for ki values")
-    plt.legend(loc="upper left")  # Legend moved to outside of plot
+    plt.title(f"PID experiment for {gain_constant} values")
+    plt.legend(loc="lower right")
 
     plt.savefig(f"{output_folder}/summary_plot.png")
 
 
-def summary_statistics():
-    pass  # TODO: write this!!!!!!!! (ask ChatGPT :):) )
+def write_dict_to_file(stats_dict, filename):
+    with open(filename, 'w') as file:
+        for key, value in stats_dict.items():
+            file.write(f"{key}: {value}\n")
+
+
+def summary_statistics(gain_constant, data_list):
+    # ensure list is made of floats
+    data_list = list(map(float, data_list))
+    data_list.sort()
+
+    # calculate statistics
+    stats_dict = {}
+    stats_dict['gain_constant'] = f'{gain_constant}'
+
+    stats_dict['mean'] = statistics.mean(data_list)
+    stats_dict['median'] = statistics.median(data_list)
+    stats_dict['standard_deviation'] = statistics.stdev(data_list)
+    stats_dict['minimum'] = min(data_list)
+    stats_dict['maximum'] = max(data_list)
+    stats_dict['range'] = stats_dict['maximum'] - stats_dict['minimum']
+    stats_dict['midrange'] = (stats_dict['maximum'] + stats_dict['minimum']) / 2
+    try:
+        stats_dict['mode'] = statistics.mode(data_list)
+    except statistics.StatisticsError:
+        stats_dict['mode'] = None
+
+    # calculate quartiles
+    q1 = np.percentile(data_list, 25)
+    q3 = np.percentile(data_list, 75)
+    stats_dict['q1'] = q1
+    stats_dict['q3'] = q3
+    stats_dict['interquartile_range'] = q3 - q1
+
+    # size
+    stats_dict['size'] = len(data_list)
+
+    return stats_dict
 
 
 def plot_pid_experiments(gain_constant, plot_titles, output_folder):
@@ -128,7 +172,7 @@ def plot_pid_experiments(gain_constant, plot_titles, output_folder):
         plt.plot(encoder_filtered, min_distances_filtered)
         plt.xlabel("Distance driven (cm)")
         plt.ylabel("Distance to wall (cm)")
-        plt.title(f"PID experiment for ki value: {pid_value}")
+        plt.title(f"PID experiment for {gain_constant} value: {pid_value}")
 
         plt.savefig(f"{output_folder}/{case}_plot.png")
 
@@ -139,13 +183,18 @@ def plot_pid_experiments(gain_constant, plot_titles, output_folder):
         all_min_distances.extend(min_distances_filtered)
 
     # Summary plot of all cases
-    summary_plot(summary_data, plot_titles, output_folder)
+    summary_plot(gain_constant, summary_data, plot_titles, output_folder)
 
     # Individual cases box plot
-    individual_summary_boxplot(summary_data, output_folder, plot_titles)
+    individual_summary_boxplot(gain_constant, summary_data, output_folder, plot_titles)
 
     # Summarizing box plot of all cases
-    summary_boxplot(all_min_distances, output_folder)
+    summary_boxplot(gain_constant, all_min_distances, output_folder)
+
+    # descriptive statistics
+    distance_stats_dict = summary_statistics(gain_constant, min_distances_filtered)
+    descriptive_stats_filename = output_folder+f"/{gain_constant}_descriptive_statistics.txt"
+    write_dict_to_file(distance_stats_dict, descriptive_stats_filename)
 
 
 if __name__ == "__main__":
