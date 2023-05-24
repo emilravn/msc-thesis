@@ -14,6 +14,7 @@ def individual_summary_boxplot(summary_data_list, output_destination_folder, cas
 
     plt.savefig(f"{output_destination_folder}/individual_box_plots.png")
 
+
 def summary_boxplot(all_min_distances, output_destination_folder, fig_width=10, fig_height=6):
     plt.figure(figsize=(fig_width, fig_height))
     plt.boxplot(all_min_distances, showfliers=False)
@@ -23,6 +24,7 @@ def summary_boxplot(all_min_distances, output_destination_folder, fig_width=10, 
     plt.tight_layout()
 
     plt.savefig(f"{output_destination_folder}/summary_box_plot.png")
+
 
 def main():
     cases = [
@@ -100,14 +102,14 @@ def main():
         all_min_distances.extend(min_distances_filtered)
 
     # Summary plot
-    plt.figure(figsize=(14, 10))
+    plt.figure(figsize=(10, 10))
 
     for i, (encoder_filtered, min_distances_filtered) in enumerate(summary_data):
         plt.plot(encoder_filtered, min_distances_filtered, label=cases[i])
 
     # Add acceptance range lines
     plt.axhline(
-        y=18, color="black", linestyle="--", label="Lower/Upper acceptance limit (18/22 cm)"
+        y=18, color="black", linestyle="--", label="Acceptance limit (18/22 cm)"
     )
     plt.axhline(y=22, color="black", linestyle="--")
 

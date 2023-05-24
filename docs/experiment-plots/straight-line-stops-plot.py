@@ -104,7 +104,7 @@ if __name__ == "__main__":
         all_min_distances.extend(min_distances_filtered)
 
     # Summary plot
-    plt.figure(figsize=(14, 10))
+    plt.figure(figsize=(10, 10))
 
     for i, (encoder_filtered, min_distances_filtered) in enumerate(summary_data):
         plt.plot(encoder_filtered, min_distances_filtered, label=cases[i])
@@ -112,7 +112,7 @@ if __name__ == "__main__":
     # Add acceptance range lines
     lower_limit = 17
     upper_limit = 23
-    limit_label = f"Lower/Upper acceptance limit ({lower_limit}/{upper_limit} cm)"
+    limit_label = f"Acceptance limit ({lower_limit}/{upper_limit} cm)"
     plt.axhline(
         y=lower_limit, color="black", linestyle="--", label=limit_label
     )
@@ -122,9 +122,9 @@ if __name__ == "__main__":
     plt.ylabel("Distance to wall (cm)")
     plt.title("Straight line with stops experiment")
 
-    plt.ylim(0, 70)  # Adjust the y-axis to range from 0 to 50
+    plt.ylim(5, 30)  # Adjust the y-axis to range from 0 to 50
 
-    plt.legend(loc="upper left")  # Legend moved to outside of plot
+    plt.legend(loc="lower left")  # Legend moved to outside of plot
 
     plt.savefig(f"{output_folder}/summary_plot.png")
 
