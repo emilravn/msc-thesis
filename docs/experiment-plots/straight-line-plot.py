@@ -4,7 +4,9 @@ import matplotlib.pyplot as plt
 from bag_decoder import BagFileParser
 
 
-def individual_summary_boxplot(summary_data_list, output_destination_folder, cases, fig_width=10, fig_height=6):
+def individual_summary_boxplot(
+    summary_data_list, output_destination_folder, cases, fig_width=10, fig_height=6
+):
     plt.figure(figsize=(fig_width, fig_height))
     # data[1] is ultrasonic distance
     plt.boxplot([data[1] for data in summary_data_list], labels=cases)
@@ -19,16 +21,16 @@ def individual_summary_boxplot(summary_data_list, output_destination_folder, cas
 def summary_boxplot(all_min_distances, output_destination_folder, fig_width=10, fig_height=6):
     plt.figure(figsize=(fig_width, fig_height))
     plt.boxplot(all_min_distances, showfliers=False)
-    plt.xlabel('All cases')
-    plt.ylabel('Distance to wall')
-    plt.title('Summary box plot')
+    plt.xlabel("All cases")
+    plt.ylabel("Distance to wall")
+    plt.title("Summary box plot")
     plt.tight_layout()
 
     plt.savefig(f"{output_destination_folder}/summary_box_plot.png")
 
 
 def write_dict_to_file(stats_dict, filename):
-    with open(filename, 'w') as file:
+    with open(filename, "w") as file:
         for key, value in stats_dict.items():
             file.write(f"{key}: {value}\n")
 
@@ -40,29 +42,29 @@ def summary_statistics(experiment_name, data_list):
 
     # calculate statistics
     stats_dict = {}
-    stats_dict['experiment'] = f'{experiment_name}'
+    stats_dict["experiment"] = f"{experiment_name}"
 
-    stats_dict['mean'] = statistics.mean(data_list)
-    stats_dict['median'] = statistics.median(data_list)
-    stats_dict['standard_deviation'] = statistics.stdev(data_list)
-    stats_dict['minimum'] = min(data_list)
-    stats_dict['maximum'] = max(data_list)
-    stats_dict['range'] = stats_dict['maximum'] - stats_dict['minimum']
-    stats_dict['midrange'] = (stats_dict['maximum'] + stats_dict['minimum']) / 2
+    stats_dict["mean"] = statistics.mean(data_list)
+    stats_dict["median"] = statistics.median(data_list)
+    stats_dict["standard_deviation"] = statistics.stdev(data_list)
+    stats_dict["minimum"] = min(data_list)
+    stats_dict["maximum"] = max(data_list)
+    stats_dict["range"] = stats_dict["maximum"] - stats_dict["minimum"]
+    stats_dict["midrange"] = (stats_dict["maximum"] + stats_dict["minimum"]) / 2
     try:
-        stats_dict['mode'] = statistics.mode(data_list)
+        stats_dict["mode"] = statistics.mode(data_list)
     except statistics.StatisticsError:
-        stats_dict['mode'] = None
+        stats_dict["mode"] = None
 
     # calculate quartiles
     q1 = np.percentile(data_list, 25)
     q3 = np.percentile(data_list, 75)
-    stats_dict['q1'] = q1
-    stats_dict['q3'] = q3
-    stats_dict['interquartile_range'] = q3 - q1
+    stats_dict["q1"] = q1
+    stats_dict["q3"] = q3
+    stats_dict["interquartile_range"] = q3 - q1
 
     # size
-    stats_dict['size'] = len(data_list)
+    stats_dict["size"] = len(data_list)
 
     return stats_dict
 
@@ -149,9 +151,7 @@ def main():
         plt.plot(encoder_filtered, min_distances_filtered, label=cases[i])
 
     # Add acceptance range lines
-    plt.axhline(
-        y=18, color="black", linestyle="--", label="Acceptance limit (18/22 cm)"
-    )
+    plt.axhline(y=18, color="black", linestyle="--", label="Acceptance limit (18/22 cm)")
     plt.axhline(y=22, color="black", linestyle="--")
 
     plt.xlabel("Distance driven (cm)")
