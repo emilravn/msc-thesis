@@ -1,0 +1,13 @@
+gain_constant_case: kd_8
+mean: 83.5423049136081
+median: 100.0
+standard_deviation: 25.130100592673525
+minimum: 31.009714126586914
+maximum: 100.0
+range: 68.99028587341309
+midrange: 65.50485706329346
+mode: 100.0
+q1: 82.77216553059188
+q3: 100.0
+interquartile_range: 17.227834469408123
+size: 915

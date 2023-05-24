@@ -110,10 +110,13 @@ if __name__ == "__main__":
         plt.plot(encoder_filtered, min_distances_filtered, label=cases[i])
 
     # Add acceptance range lines
+    lower_limit = 17
+    upper_limit = 23
+    limit_label = f"Lower/Upper acceptance limit ({lower_limit}/{upper_limit} cm)"
     plt.axhline(
-        y=18, color="black", linestyle="--", label="Lower/Upper acceptance limit (18/22 cm)"
+        y=lower_limit, color="black", linestyle="--", label=limit_label
     )
-    plt.axhline(y=22, color="black", linestyle="--")
+    plt.axhline(y=upper_limit, color="black", linestyle="--")
 
     plt.xlabel("Distance driven (cm)")
     plt.ylabel("Distance to wall (cm)")
