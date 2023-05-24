@@ -199,7 +199,7 @@ The credentials during the thesis for the robot:
 
 * To enable SSH connection via hostname you should install **avahi-daemon** on the Raspberry Pi 4. 
 
-* Disable SPI with `raspi-config` as we are not interfacing with a microcontroller. Otherwise none of the functionality won't work!
+* Disable SPI with `raspi-config` as we are not interfacing with a microcontroller.
 
 ## Workflow
 
@@ -207,9 +207,6 @@ The [robot_control.sh](https://github.com/emilravn/msc-thesis/blob/206302bcd5230
   * This becomes much simpler by copying your public SSH key to the Raspberry Pi 4 with `ssh-copy-id -i </path/to/key sfr@sfr.local`. 
 
 If on a Windows machine you should also install the **Bonjour Print Service** from Apple which enables you to discover it by hostname instead of IP-address only.
-
-Backup of the entire SD card is done periodically, and mostly when changes are made to the packages or the settings of the Raspberry Pi 4:
-  * **Last backup date**: **16/05/2023**.
 
 ### Monitor CPU/memory/temperature generate statistic reports
 

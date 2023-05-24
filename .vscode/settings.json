@@ -69,6 +69,7 @@
         "rosdistro",
         "rosidl",
         "RTPS",
+        "tflite",
         "uncrustify",
         "Wextra",
         "Wpedantic",

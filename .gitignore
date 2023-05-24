@@ -3,3 +3,5 @@ install/*
 log/*
 site/*
 __pycache__/
+classifier/images/plantvillage/*
+
