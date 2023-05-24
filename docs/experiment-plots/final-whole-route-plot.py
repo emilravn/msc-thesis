@@ -83,7 +83,7 @@ if __name__ == "__main__":
 
     # Add acceptance range lines
     plt.axhline(
-        y=18, color="black", linestyle="--", label="Lower/Upper acceptance limit (18/22 cm)"
+        y=18, color="black", linestyle="--", label="Acceptance limit (18/22 cm)"
     )
     plt.axhline(y=22, color="black", linestyle="--")
 

@@ -1,5 +1,4 @@
 import numpy as np
-from scipy import stats
 import statistics
 import matplotlib.pyplot as plt
 from bag_decoder import BagFileParser
