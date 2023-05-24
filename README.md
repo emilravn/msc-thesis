@@ -199,7 +199,7 @@ The credentials during the thesis for the robot:
 
 * To enable SSH connection via hostname you should install **avahi-daemon** on the Raspberry Pi 4. 
 
-* Disable SPI with `raspi-config` as we are not interfacing with a microcontroller. Otherwise none of the functionality won't work!
+* Disable SPI with `raspi-config` as we are not interfacing with a microcontroller.
 
 ## Workflow
 
