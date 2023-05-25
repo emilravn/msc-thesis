@@ -10,9 +10,6 @@
   - [Prerequisites](#prerequisites)
   - [Raspberry Pi 4 Setup](#raspberry-pi-4-setup)
   - [Workflow](#workflow)
-    - [Monitor CPU/memory/temperature generate statistic reports](#monitor-cpumemorytemperature-generate-statistic-reports)
-  - [Documentation from used libraries](#documentation-from-used-libraries)
-- [Known issues](#known-issues)
 
 # MSc. Thesis
 
