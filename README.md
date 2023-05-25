@@ -10,6 +10,7 @@
   - [Prerequisites](#prerequisites)
   - [Raspberry Pi 4 Setup](#raspberry-pi-4-setup)
   - [Workflow](#workflow)
+- [How to Use The Project](#how-to-use-the-project)
 
 # MSc. Thesis
 
@@ -204,6 +205,10 @@ The [robot_control.sh](https://github.com/emilravn/msc-thesis/blob/206302bcd5230
 
 If on a Windows machine you should also install the **Bonjour Print Service** from Apple which enables you to discover it by hostname instead of IP-address only.
 
-## Documentation from used libraries
+# How to Use the Project
 
-* [gpiozero](https://gpiozero.readthedocs.io/en/stable/index.html): library for controlling various GPIO elements.
+1. Code is tested and ran on a Raspberry Pi 4 with ROS 2 Humble installed on Ubuntu 22.04 (Jammy Jellyfish). 
+2. Install dependencies as listed in [requirements.txt](https://github.com/emilravn/msc-thesis/blob/ba5a5787f4e4dea2af101decc3b0040485138635/.devcontainer/requirements.txt).
+3. Build the workspace `colcon build --packages-select sfr --symlink-install`.
+4. Source the installation `source install/setup.bash`.
+5. Run the main algorithm `ros2 launch sfr start_crop_algorithm_launch.py`.
