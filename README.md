@@ -10,17 +10,13 @@
   - [Prerequisites](#prerequisites)
   - [Raspberry Pi 4 Setup](#raspberry-pi-4-setup)
   - [Workflow](#workflow)
-    - [Monitor CPU/memory/temperature generate statistic reports](#monitor-cpumemorytemperature-generate-statistic-reports)
-  - [Documentation from used libraries](#documentation-from-used-libraries)
-- [Known issues](#known-issues)
+- [How to Use The Project](#how-to-use-the-project)
 
 # MSc. Thesis
 
-<!-- ABOUT THE PROJECT -->
-
 [![ROS 2 CI](https://github.com/emilravn/msc-thesis/actions/workflows/ros.yaml/badge.svg)](https://github.com/emilravn/msc-thesis/actions/workflows/ros.yaml)
 
-**(Work in Progress)**
+A ROS 2 based autonomous robot using ultrasonic sensor-guided navigation, encoder-assisted localization, and a TensorFlow Lite machine learning model to identify crop diseases and collect environmental data for use in a greenhouse.
 
 # Hardware
 
@@ -38,7 +34,7 @@ The following components were used for the robot assembly:
 | 6        | [Raspberry Pi Camera Board v1.3 (5MP, 1080p)](https://elektronik-lavpris.dk/p145103/rpi-camera-board-raspberry-pi-kamera-modul-5mpix-v13/) | 1 | DKK99.00 | DKK99.00 |
 | 7        | [SCD30 (CO<sub>2</sub>, Humidity and Temperature Sensor)](https://let-elektronik.dk/co-humidity-and-temperature-sensor-scd30) | 1 | DKK746.46 | DKK746.25 |
 | 8        | [Zeee 2S Lipo Battery 5200 mAh 5200 mAh 7.4 V](https://www.amazon.de/-/en/Battery-80C-Batteries-Evader-Truggy/dp/B094Q9R1L4/ref=sr_1_16?crid=15SPCMBY8J8WU&keywords=lipo+7.4v+5200&qid=1683796021&sprefix=lipo+7.4v+5200%2Caps%2C77&sr=8-16)   | 1         | DKK172.00  | DKK172.00     |
-| 9        | Powerbank for Raspberry Pi 4 (minimum output: 5V 2.4A)      | 1         | N/A  | N/A     |
+| 9        | Powerbank for Raspberry Pi 4 (minimum output: 5V 3A)      | 1         | N/A  | N/A     |
 | 10       | Capacitor Electrolytic 10uF 25V   | 2         | N/A  | N/A     |
 | 11       | Resistor 330Ω   | 3         | N/A  | N/A     |
 | 12       | Resistor 470Ω   | 3         | N/A  | N/A     |
@@ -189,7 +185,7 @@ The following are necessary to setup the development environment:
 
 ## Raspberry Pi 4 Setup
 
-The Raspberry Pi 4 is based on the [Raspberry Pi with ROS 2 and the real-time kernel](https://github.com/ros-realtime/ros-realtime-rpi4-image) image and modified during setup with the Raspberry Pi Imager software to have different a hostname and password, and to connect it to Wi-Fi and allow SSH connections. As of May 2023, the image is based off the [ROS 2 Humble distribution](https://docs.ros.org/en/humble/index.html#) with Ubuntu 22.04.01 and the real-time kernel (PREEMPT_RT) pre-installed.
+The Raspberry Pi 4 is based on the [Raspberry Pi with ROS 2 and the real-time kernel](https://github.com/ros-realtime/ros-realtime-rpi4-image) image and modified during setup with the Raspberry Pi Imager software to have different a hostname and password. As of May 2023, the image is based off the [ROS 2 Humble distribution](https://docs.ros.org/en/humble/index.html#) with Ubuntu 22.04.01 and the real-time kernel (PREEMPT_RT) pre-installed.
 
 The credentials during the thesis for the robot:
 
@@ -203,15 +199,14 @@ The credentials during the thesis for the robot:
 
 ## Workflow
 
-The [robot_control.sh](https://github.com/emilravn/msc-thesis/blob/206302bcd523076b146bc1268338234476f9b547/robot_control.sh) script is used to transferring code and to communicate with the robot at ease.
-  * This becomes much simpler by copying your public SSH key to the Raspberry Pi 4 with `ssh-copy-id -i </path/to/key sfr@sfr.local`. 
+The [robot_control.sh](https://github.com/emilravn/msc-thesis/blob/206302bcd523076b146bc1268338234476f9b547/robot_control.sh) script is used to transferring code and to communicate with the robot at ease. This becomes much simpler by copying your public SSH key to the Raspberry Pi 4 with `ssh-copy-id -i </path/to/key sfr@sfr.local`. 
 
 If on a Windows machine you should also install the **Bonjour Print Service** from Apple which enables you to discover it by hostname instead of IP-address only.
 
-### Monitor CPU/memory/temperature generate statistic reports
+# How to Use the Project
 
-Install **RPi-Monitor** with `apt` and it will serve up an interactive webpage at `localhost:8888` when on the same network as the Raspberry Pi 4.
-
-## Documentation from used libraries
-
-* [gpiozero](https://gpiozero.readthedocs.io/en/stable/index.html): library for controlling various GPIO elements.
+1. Code is tested and ran on a Raspberry Pi 4 with ROS 2 Humble installed on Ubuntu 22.04 (Jammy Jellyfish). 
+2. Install dependencies as listed in [requirements.txt](https://github.com/emilravn/msc-thesis/blob/ba5a5787f4e4dea2af101decc3b0040485138635/.devcontainer/requirements.txt).
+3. Build the workspace `colcon build --packages-select sfr --symlink-install`.
+4. Source the installation `source install/setup.bash`.
+5. Run the main algorithm `ros2 launch sfr start_crop_algorithm_launch.py`.
