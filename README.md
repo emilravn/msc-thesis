@@ -14,11 +14,9 @@
 
 # MSc. Thesis
 
-<!-- ABOUT THE PROJECT -->
-
 [![ROS 2 CI](https://github.com/emilravn/msc-thesis/actions/workflows/ros.yaml/badge.svg)](https://github.com/emilravn/msc-thesis/actions/workflows/ros.yaml)
 
-**(Work in Progress)**
+A ROS 2 based autonomous robot using ultrasonic sensor-guided navigation, encoder-assisted localization, and a TensorFlow Lite machine learning model to identify crop diseases and collect environmental data for use in a greenhouse.
 
 # Hardware
 
