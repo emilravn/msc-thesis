@@ -1,5 +1,7 @@
-import inferencing_one_image
+import inferencing_one_image as ml
 import time
+
+labels = "./model/labels.txt"
 
 
 def simulate_capture():
@@ -8,5 +10,10 @@ def simulate_capture():
     print("Photo captured!")
 
 
-simulate_capture()
-inferencing_one_image.predict_new_disease()
+if __name__ == "__main__":
+    simulate_capture()
+    class_folder, random_image, full_path = ml.get_a_random_image()
+    raw_prediction, label_prediction = ml.predict_new_disease(full_path, random_image)
+    print(raw_prediction)
+    ml.compare_output(label_prediction, labels, class_folder, random_image)
+    ml.normalize_values(raw_prediction)

@@ -5,14 +5,11 @@ import time
 import os
 import random
 
-# Image dataset
-images_folder = "./images/plantvillage/"
-
-# Load the labels
-label_path = "./model/labels.txt"
-
-# Load the model
+# Get the images, load the labels, and load the model
+images = "./images/plantvillage/"
+labels = "./model/labels.txt"
 model_path = "./model/efficient_test1_data10.tflite"
+
 interpreter = Interpreter(model_path)
 print("Model Loaded Successfully.")
 
@@ -24,14 +21,30 @@ output_details = interpreter.get_output_details()
 _, height, width, _ = interpreter.get_input_details()[0]["shape"]
 print("Image Shape (", width, ",", height, ")")
 
+classes = [
+    "Bacterial spot",
+    "Early blight",
+    "Late blight",
+    "Leaf mold",
+    "Septoria leaf spot",
+    "Spider mites two-spotted spider mite",
+    "Target spot",
+    "Tomato yellow leaf curl virus",
+    "Tomato mosaic virus",
+    "Healthy",
+]
 
-def predict_new_disease():
+
+def get_a_random_image():
     # List a random file for the model to predict
-    tomato_class_folder = str(np.random.choice(os.listdir(images_folder)) + "/")
-    full_path = os.path.join(images_folder, tomato_class_folder)
+    tomato_class_folder = str(np.random.choice(os.listdir(images)) + "/")
+    full_path = os.path.join(images, tomato_class_folder)
     file_list = os.listdir(full_path)
     random_image = random.choice(file_list)
+    return tomato_class_folder, random_image, full_path
 
+
+def predict_new_disease(full_path, random_image):
     # Load the image
     image = Image.open(full_path + random_image).convert("RGB").resize((width, height))
     image = np.array(image)
@@ -46,13 +59,23 @@ def predict_new_disease():
     print("time taken for Inference: ", str(time_taken), "ms")
 
     # Obtain results
-    prediction = interpreter.get_tensor(output_details[0]["index"])[0]
-    prediction = np.argmax(prediction)
+    raw_prediction = interpreter.get_tensor(output_details[0]["index"])[0]
+    label_prediction = np.argmax(raw_prediction)
 
-    compare_output(prediction, label_path, tomato_class_folder, random_image)
+    return raw_prediction, label_prediction
 
 
-def compare_output(output_value, label_path, tomato_class_folder, random_image):
+def normalize_values(prediction):
+    percentage_list = []
+    for i in range(len(prediction)):
+        percentage_list.append("{:.9f}".format(prediction[i]))
+
+    result = list(zip(classes, percentage_list))
+    for i in range(len(result)):
+        print(result[i])
+
+
+def compare_output(prediction, label_path, tomato_class_folder, random_image):
     # Read the contents of the text file
     with open(label_path, "r") as file:
         lines = file.readlines()
@@ -66,8 +89,16 @@ def compare_output(output_value, label_path, tomato_class_folder, random_image):
         labels[label_key] = disease
 
     # Compare the output value with the text file entry
-    if output_value in labels:
-        print(f"Image: {tomato_class_folder}{random_image}")
-        print(f"Identified by model as: {labels[output_value]}")
+    if prediction in labels:
+        print(f"Random tomato image from the dataset: {tomato_class_folder}{random_image}")
+        print(f"Model predicted image as: {labels[prediction]}")
     else:
         print("Output value not found in the text file.")
+
+
+if __name__ == "__main__":
+    class_folder, random_image, full_path = get_a_random_image()
+    raw_prediction, label_prediction = predict_new_disease(full_path, random_image)
+    print(raw_prediction)
+    compare_output(label_prediction, labels, class_folder, random_image)
+    normalize_values(raw_prediction)
